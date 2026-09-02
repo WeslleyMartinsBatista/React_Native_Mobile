@@ -64,20 +64,13 @@ Sempre que puxar novas atualizações do repositório remoto, siga esta rotina p
 
 ## Estrutura de Pastas
 
+```
 React_Native_Mobile/
-
 ├── assets/          # Imagens, fontes e recursos estáticos
-
 ├── src/
-
 │   ├── models/      # Regras de negócio e estruturas de dados (Ex: userModel.js)
-
 │   └── screens/     # Telas do aplicativo (Ex: LoginScreen.js)
-
 ├── App.js           # Ponto de entrada da aplicação
-
 ├── app.json         # Configurações do Expo
-
 ├── babel.config.js  # Configuração de presets do Babel
-
 └── package.json     # Scripts e dependências do projeto
