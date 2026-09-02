@@ -5,8 +5,11 @@ O Cardápio Nativo é um aplicativo mobile desenvolvido em React Native* com Exp
 ## Tecnologias e Bibliotecas
 
    [React Native](https://reactnative.dev/): Framework para desenvolvimento mobile multiplataforma.
+   
    [Expo CLI](https://docs.expo.dev/): Ferramenta de desenvolvimento e execução do ecossistema React Native.
+   
    [Lucide React Native](https://lucide.dev/): Conjunto de ícones vetoriais leves e modernos.
+   
    [React Native SVG](https://github.com/software-mansion/react-native-svg): Suporte à renderização de ícones e ilustrações vetoriais em formato SVG.
 
 ## Guia de Instalação e Configuração
@@ -16,9 +19,12 @@ Siga as instruções abaixo para clonar o repositório, instalar todas as depend
 ## Pré-requisitos
 
 Antes de iniciar, certifique-se de possuir em sua máquina:
-    [Node.js](https://nodejs.org/) (Versão LTS recomendada).
-    [Git](https://git-scm.com/) instalado.
-    Aplicativo **Expo Go** no celular ([Android](https://play.google.com/store/apps/details?id=host.exp.exponent) / [iOS](https://apps.apple.com/app/expo-go/id982107779)) ou um Emulador Android / Simulador iOS configurado.
+
+   [Node.js](https://nodejs.org/) (Versão LTS recomendada).
+    
+   [Git](https://git-scm.com/) instalado.
+    
+   Aplicativo **Expo Go** no celular ([Android](https://play.google.com/store/apps/details?id=host.exp.exponent) / [iOS](https://apps.apple.com/app/expo-go/id982107779)) ou um Emulador Android / Simulador iOS configurado.
 
 ### 1. Clonar o Repositório
 
