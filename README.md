@@ -4,7 +4,7 @@ O Cardápio Nativo é um aplicativo mobile desenvolvido em React Native* com Exp
 
 # Tecnologias e Bibliotecas
 
-[React Native](https://reactnative.dev/):** Framework para desenvolvimento mobile multiplataforma.
+[React Native](https://reactnative.dev/): Framework para desenvolvimento mobile multiplataforma.
 [Expo CLI](https://docs.expo.dev/): Ferramenta de desenvolvimento e execução do ecossistema React Native.
 [Lucide React Native](https://lucide.dev/): Conjunto de ícones vetoriais leves e modernos.
 [React Native SVG](https://github.com/software-mansion/react-native-svg): Suporte à renderização de ícones e ilustrações vetoriais em formato SVG.
