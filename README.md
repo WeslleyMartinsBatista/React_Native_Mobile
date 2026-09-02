@@ -1,8 +1,8 @@
-#📱 Cardápio Nativo - Mobile (React Native + Expo)
+# Cardápio Nativo - Mobile (React Native + Expo)
 
 O Cardápio Nativo é um aplicativo mobile desenvolvido em React Native* com Expo, focado em oferecer uma experiência simples e intuitiva para visualização de cardápios, navegação de produtos e realização de pedidos.
 
-#🛠️ Tecnologias e Bibliotecas
+# Tecnologias e Bibliotecas
 
 [React Native](https://reactnative.dev/):** Framework para desenvolvimento mobile multiplataforma.
 [Expo CLI](https://docs.expo.dev/): Ferramenta de desenvolvimento e execução do ecossistema React Native.
