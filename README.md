@@ -35,17 +35,17 @@ Antes de iniciar, certifique-se de possuir em sua máquina:
 
 Para baixar os pacotes do projeto (incluindo o lucide-react-native e o react-native-svg), execute no terminal da raiz do projeto:
 
-        npm install
+    npm install
 
 Caso o terminal exiba avisos de conflito de versões legadas (ERESOLVE), utilize a flag --legacy-peer-deps:
 
-        npm install --legacy-peer-deps
+    npm install --legacy-peer-deps
 
 ### 3. Iniciar o Projeto
 
 Após a instalação das dependências, rode o comando do Expo limpando o cache do Metro Bundler:
 
-        npx expo start -c
+    npx expo start -c
 
 ### 4. Como visualizar o App:
 No celular físico: Abra o app Expo Go, escaneie o QR Code exibido no terminal (no Android) ou pela Câmera (no iOS). Nota: O celular e o computador devem estar na mesma rede Wi-Fi.
