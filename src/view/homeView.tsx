@@ -7,6 +7,7 @@ import {
   Text,
   StyleSheet,
   SafeAreaView,
+  ImageBackground,
 } from 'react-native';
 import {
   Utensils,
@@ -18,14 +19,16 @@ import {
   Bike,
   ChevronRight,
   Info,
+  Menu,
   LucideIcon,
 } from 'lucide-react-native';
 
-// 1. Definição das interfaces para garantir a tipagem correta
+// Interfaces
 interface Category {
   title: string;
   subtitle: string;
   icon: LucideIcon;
+  imageUrl: string;
 }
 
 interface MenuConfig {
@@ -35,17 +38,48 @@ interface MenuConfig {
   categories: Category[];
 }
 
-// 2. Tipagem do objeto com as duas modalidades aceitas
 const menuByService: Record<'local' | 'entrega', MenuConfig> = {
   local: {
     eyebrow: 'Atendimento no restaurante',
     title: 'Escolha para a sua mesa',
     description: 'Navegue pelo cardápio e faça seu pedido quando estiver pronto.',
     categories: [
-      { title: 'Pratos da casa', subtitle: 'Receitas para o almoço e jantar', icon: Utensils },
-      { title: 'Lanches', subtitle: 'Para dividir ou matar a fome', icon: ChefHat },
-      { title: 'Bebidas', subtitle: 'Geladas, quentes e sem álcool', icon: Coffee },
-      { title: 'Sobremesas', subtitle: 'Um final doce para a refeição', icon: Dessert },
+      {
+        title: 'Churrasco',
+        subtitle: 'Receitas para o almoço e jantar',
+        icon: Utensils,
+        imageUrl: 'https://img.magnific.com/fotos-premium/churrasco-tradicional-brasileiro-perto-do-fogo_70216-3339.jpg?semt=ais_hybrid&w=740&q=80',
+      },
+      {
+        title: 'Lanches',
+        subtitle: 'Para dividir ou matar a fome',
+        icon: ChefHat,
+        imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80',
+      },
+      {
+        title: 'Prato Feito',
+        subtitle: 'Receitas para o almoço e jantar',
+        icon: Utensils,
+        imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80',
+      },
+      {
+        title: 'Bebidas',
+        subtitle: 'Geladas, quentes e sem álcool',
+        icon: Coffee,
+        imageUrl: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&q=80',
+      },
+      {
+        title: 'Porções',
+        subtitle: 'Para dividir ou matar a fome',
+        icon: ChefHat,
+        imageUrl: 'https://img.magnific.com/fotos-gratis/batatas-fritas-douradas-em-uma-cesta-de-vime-com-fundo-bokeh_84443-86965.jpg?semt=ais_hybrid&w=740&q=80',
+      },
+      {
+        title: 'Sobremesas',
+        subtitle: 'Um final doce para a refeição',
+        icon: Dessert,
+        imageUrl: 'https://cdn.pixabay.com/photo/2016/06/12/15/03/cupcakes-1452178_1280.jpg',
+      },
     ],
   },
   entrega: {
@@ -53,18 +87,41 @@ const menuByService: Record<'local' | 'entrega', MenuConfig> = {
     title: 'Peça sem sair de casa',
     description: 'Veja as opções preparadas para viagem e receba com praticidade.',
     categories: [
-      { title: 'Pratos feitos', subtitle: 'Refeições completas para hoje', icon: Utensils },
-      { title: 'Lanches', subtitle: 'Favoritos para pedir agora', icon: ChefHat },
-      { title: 'Bebidas', subtitle: 'Para acompanhar seu pedido', icon: Coffee },
-      { title: 'Porções', subtitle: 'Boas para compartilhar', icon: Dessert },
+      {
+        title: 'Pratos feitos',
+        subtitle: 'Refeições completas para hoje',
+        icon: Utensils,
+        imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80',
+      },
+      {
+        title: 'Lanches',
+        subtitle: 'Favoritos para pedir agora',
+        icon: ChefHat,
+        imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80',
+      },
+      {
+        title: 'Bebidas',
+        subtitle: 'Para acompanhar seu pedido',
+        icon: Coffee,
+        imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&q=80',
+      },
+      {
+        title: 'Porções',
+        subtitle: 'Boas para compartilhar',
+        icon: Dessert,
+        imageUrl: 'https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=600&q=80',
+      },
     ],
   },
 };
 
 export default function HomeScreen() {
-  // 3. Restringindo o estado estritamente para 'local' ou 'entrega'
   const [serviceMode, setServiceMode] = useState<'local' | 'entrega'>('local');
   const menu = menuByService[serviceMode];
+
+  const handleMenuPress = () => {
+    Alert.alert('Menu', 'Abre o menu de navegação do aplicativo.');
+  };
 
   const handleScanner = () => {
     Alert.alert(
@@ -86,11 +143,11 @@ export default function HomeScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
-          {/* Top Bar */}
+          {/* Top Bar com Botão de Menu */}
           <View style={styles.header}>
-            <View style={styles.brandIcon}>
-              <Utensils size={20} color="#ffffff" />
-            </View>
+            <Pressable style={styles.menuButton} onPress={handleMenuPress}>
+              <Menu size={22} color="#ffffff" />
+            </Pressable>
             <View style={{ alignItems: 'flex-end' }}>
               <Text style={styles.brandTitle}>Cardápio Nativo</Text>
               <Text style={styles.brandSubtitle}>Seu pedido, do seu jeito</Text>
@@ -155,7 +212,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Categorias */}
+        {/* Categorias com Imagem de Fundo */}
         <View style={styles.content}>
           <View style={styles.sectionHeader}>
             <View style={styles.dot} />
@@ -170,16 +227,23 @@ export default function HomeScreen() {
               return (
                 <Pressable
                   key={category.title}
-                  style={styles.categoryCard}
+                  style={styles.categoryCardContainer}
                   onPress={() => handleCategory(category.title)}>
-                  <View style={styles.categoryIconBg}>
-                    <IconComponent size={20} color="#6344FF" />
-                  </View>
-                  <View style={{ flex: 1, marginLeft: 16 }}>
-                    <Text style={styles.categoryTitle}>{category.title}</Text>
-                    <Text style={styles.categorySub}>{category.subtitle}</Text>
-                  </View>
-                  <ChevronRight size={20} color="#a1a1aa" />
+                  <ImageBackground
+                    source={{ uri: category.imageUrl }}
+                    style={styles.categoryBackgroundImage}
+                    imageStyle={{ borderRadius: 16 }}>
+                    <View style={styles.categoryOverlay}>
+                      <View style={styles.categoryIconBg}>
+                        <IconComponent size={20} color="#6344FF" />
+                      </View>
+                      <View style={{ flex: 1, marginLeft: 16 }}>
+                        <Text style={styles.categoryTitle}>{category.title}</Text>
+                        <Text style={styles.categorySub}>{category.subtitle}</Text>
+                      </View>
+                      <ChevronRight size={20} color="#ffffff" />
+                    </View>
+                  </ImageBackground>
                 </Pressable>
               );
             })}
@@ -219,7 +283,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 12,
   },
-  brandIcon: {
+  menuButton: {
     height: 44,
     width: 44,
     borderRadius: 16,
@@ -343,31 +407,36 @@ const styles = StyleSheet.create({
     marginTop: 24,
     gap: 12,
   },
-  categoryCard: {
+  categoryCardContainer: {
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  categoryBackgroundImage: {
+    width: '100%',
+  },
+  categoryOverlay: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#e4e4e7',
-    backgroundColor: '#ffffff',
+    backgroundColor: 'rgba(0, 0, 0, 0.55)', // Camada escura para legibilidade do texto
     padding: 16,
+    borderRadius: 16,
   },
   categoryIconBg: {
     width: 48,
     height: 48,
     borderRadius: 16,
-    backgroundColor: '#EEECFF',
+    backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
   },
   categoryTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#09090b',
+    fontWeight: '700',
+    color: '#ffffff',
   },
   categorySub: {
     fontSize: 12,
-    color: '#71717a',
+    color: '#e4e4e7',
     marginTop: 2,
   },
   infoBox: {
@@ -385,4 +454,4 @@ const styles = StyleSheet.create({
     color: '#27272a',
     lineHeight: 18,
   },
-}); // Fechamento correto aqui no final
+});
