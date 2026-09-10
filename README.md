@@ -41,6 +41,12 @@ Caso o terminal exiba avisos de conflito de versões legadas (ERESOLVE), utilize
 
     npm install --legacy-peer-deps
 
+Instalar as dependencias do DraftBit
+
+    npx expo install @draftbit/ui react-native-svg
+
+Necessario renomear App.js para App.tsx
+
 ### 3. Iniciar o Projeto
 
 Após a instalação das dependências, rode o comando do Expo limpando o cache do Metro Bundler:
