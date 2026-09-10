@@ -73,6 +73,7 @@ Sempre que puxar novas atualizações do repositório remoto, siga esta rotina p
 
 ### 3. Rodar o servidor limpando o cache
     npx expo start -c
+    npx expo start --clear
 
 ## Estrutura de Pastas
 
