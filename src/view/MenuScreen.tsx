@@ -16,7 +16,7 @@ import {
   ArrowLeft, 
   BellRing 
 } from 'lucide-react-native';
-import { useCart } from '../store/cart'; // Importação do carrinho
+import { useCart } from '../store/Cart'; // Importação do carrinho
 
 const COLORS = {
   background: '#F7F4F0',

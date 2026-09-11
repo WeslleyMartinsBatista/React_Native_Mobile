@@ -12,7 +12,7 @@ import {
   Alert
 } from 'react-native';
 import { X } from 'lucide-react-native';
-import { useCart } from '../store/cart'; // Importação do carrinho
+import { useCart } from '../store/Cart'; // Importação do carrinho
 
 const COLORS = {
   overlayBg: 'rgba(26, 26, 26, 0.6)',

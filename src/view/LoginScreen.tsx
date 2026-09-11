@@ -12,7 +12,7 @@ import {
   Alert
 } from 'react-native';
 import { Flame, X } from 'lucide-react-native';
-import { useAuth } from '../controllers/AuthController';
+import { useAuth } from '../controller/AuthController';
 
 const COLORS = {
   darkBg: '#121418',     // Fundo escuro atrás do modal
