@@ -57,10 +57,11 @@ export default function MenuScreen({ route, navigation }) {
   return (
     <SafeAreaView style={styles.safeArea}>
       
-      {/* Cabeçalho */}
+      {/* Cabeçalho Ajustado com ícone de voltar coerente */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerButton} onPress={() => navigation.goBack()}>
-          <Menu color={COLORS.textMain} size={24} />
+          {/* Trocado de Menu para ArrowLeft para indicar o retorno à Home */}
+          <ArrowLeft color={COLORS.textMain} size={24} />
         </TouchableOpacity>
         
         <View style={styles.logoContainer}>
@@ -68,7 +69,6 @@ export default function MenuScreen({ route, navigation }) {
           <Text style={styles.logoText}>Fogo & Fumaça</Text>
         </View>
         
-        {/* Ícone da Sacola Atualizado */}
         <TouchableOpacity style={[styles.headerButton, styles.cartButton]} onPress={() => navigation.navigate('Checkout')}>
           <ShoppingBag color={COLORS.white} size={20} />
           {cartCount > 0 && (

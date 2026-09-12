@@ -115,7 +115,7 @@ const menuByService: Record<'local' | 'entrega', MenuConfig> = {
   },
 };
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
   const [serviceMode, setServiceMode] = useState<'local' | 'entrega'>('local');
   const menu = menuByService[serviceMode];
 
@@ -131,10 +131,7 @@ export default function HomeScreen() {
   };
 
   const handleCategory = (categoryName: string) => {
-    Alert.alert(
-      'Categoria em demonstração',
-      `${categoryName} será aberto quando o cardápio estiver conectado.`
-    );
+    navigation.navigate('MenuScreen', { category: categoryName });
   };
 
   return (

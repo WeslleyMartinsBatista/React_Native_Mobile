@@ -6,7 +6,7 @@ import { AuthProvider } from './src/controller/AuthController';
 import { CartProvider } from './src/store/Cart';
 
 import HomeScreen from './src/view/homeView';
-import MenuScreen from './src/view/MenuScreen';
+import MenuScreen from './src/view/cardapioView';
 import LoginScreen from './src/view/LoginScreen';
 import RegisterScreen from './src/view/RegisterScreen';
 import CheckoutScreen from './src/view/CheckoutScreen';
