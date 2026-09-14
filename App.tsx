@@ -5,9 +5,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AuthProvider } from './src/controller/AuthController';
 import { CartProvider } from './src/store/Cart';
 
-import HomeScreen from './src/view/homeView';
-import MenuScreen from './src/view/cardapioView';
-import LoginScreen from './src/view/LoginScreen';
+import homeView from './src/view/homeView';
+import cardapioView from './src/view/cardapioView';
+import loginView from './src/view/loginView';
 import RegisterScreen from './src/view/RegisterScreen';
 import CheckoutScreen from './src/view/CheckoutScreen';
 import AttendantDashboardScreen from './src/view/AttendantDashboardScreen';
@@ -20,10 +20,10 @@ export default function App() {
     <AuthProvider>
       <CartProvider>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="MenuScreen" component={MenuScreen} />
-            <Stack.Screen name="LoginScreen" component={LoginScreen} />
+          <Stack.Navigator initialRouteName="homeView" screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="homeView" component={homeView} />
+            <Stack.Screen name="cardapioView" component={cardapioView} />
+            <Stack.Screen name="loginView" component={loginView} />
             <Stack.Screen name="Register" component={RegisterScreen} />
             <Stack.Screen name="Checkout" component={CheckoutScreen} />
             <Stack.Screen name="AdminDashboard" component={AttendantDashboardScreen} />
