@@ -33,22 +33,62 @@ const COLORS = {
 export default function MenuScreen({ route, navigation }) {
   const category = route?.params?.category || 'Churrasco';
   const [activeFilter, setActiveFilter] = useState('Todos');
-  
-  // Puxando as funções do carrinho
   const { addToCart, cartCount } = useCart();
 
   const getFilters = () => {
     if (category === 'Bebidas') return ['Todos', 'Sem álcool', 'Com álcool'];
     if (category === 'Lanches') return ['Todos', 'Hambúrgueres', 'Porções'];
-    return ['Todos', 'Cortes', 'Espetinhos'];
+    if (category === 'Pratos feitos' || category === 'Prato Feito') return ['Todos', 'Tradicional', 'Especiais'];
+    if (category === 'Porções') return ['Todos', 'Petiscos', 'Fritas'];
+    if (category === 'Sobremesas') return ['Todos', 'Doces', 'Gelados'];
+    return ['Todos', 'Cortes', 'Espetinhos']; // Padrão (Churrasco)
   };
 
+  // Mapeamento dos produtos por categoria
   const getProducts = () => {
-    return [
-      { id: '1', title: 'Picanha na brasa', desc: '300g, sal de parrilla e farofa da casa', price: '54.00', icon: '🥩', badge: 'Mais pedido' },
-      { id: '2', title: 'Costela fogo lento', desc: 'Macia, defumada por 8 horas', price: '48.00', icon: '🍖', badge: null },
-      { id: '3', title: 'Linguiça campeira', desc: 'Acompanha pão de alho', price: '32.00', icon: '🌭', badge: null },
-    ];
+    switch (category) {
+      case 'Churrasco':
+        return [
+          { id: '1', title: 'Picanha na brasa', desc: '300g, sal de parrilla e farofa da casa', price: '54.00', icon: '🥩', badge: 'Mais pedido' },
+          { id: '2', title: 'Costela fogo lento', desc: 'Macia, defumada por 8 horas', price: '48.00', icon: '🍖', badge: null },
+          { id: '3', title: 'Linguiça campeira', desc: 'Acompanha pão de alho', price: '32.00', icon: '🌭', badge: null },
+        ];
+
+      case 'Lanches':
+        return [
+          { id: '4', title: 'X-Burguer Artesanal', desc: 'Hambúrguer 180g, queijo cheddar e molho especial', price: '28.00', icon: '🍔', badge: 'Mais pedido' },
+          { id: '5', title: 'Smash Bacon', desc: 'Dois discos de 90g, muito bacon e queijo prato', price: '32.00', icon: '🥓', badge: null },
+        ];
+
+      case 'Prato Feito':
+      case 'Pratos feitos':
+        return [
+          { id: '6', title: 'PF de Bife acebolado', desc: 'Arroz, feijão, bife de alcatra, batata frita e salada', price: '25.00', icon: '🍽️', badge: 'Popular' },
+          { id: '7', title: 'PF de Frango Grelhado', desc: 'Arroz integral, feijão, filé de frango e legumes', price: '22.00', icon: '🥗', badge: null },
+        ];
+
+      case 'Bebidas':
+        return [
+          { id: '8', title: 'Refrigerante Lata', desc: '350ml - Coca-Cola, Guaraná ou Soda', price: '6.00', icon: '🥤', badge: null },
+          { id: '9', title: 'Cerveja Artesanal IPA', desc: '500ml bem gelada', price: '18.00', icon: '🍺', badge: 'Recomendado' },
+          { id: '10', title: 'Suco Natural de Laranja', desc: 'Copao de 500ml sem açúcar', price: '9.00', icon: '🍊', badge: null },
+        ];
+
+      case 'Porções':
+        return [
+          { id: '11', title: 'Batata Frita Suprema', desc: '500g com molho de queijo e bacon', price: '26.00', icon: '🍟', badge: 'Mais pedido' },
+          { id: '12', title: 'Mandioca Frita', desc: 'Crocante por fora e macia por dentro', price: '20.00', icon: '🧆', badge: null },
+        ];
+
+      case 'Sobremesas':
+        return [
+          { id: '13', title: 'Pudim de Leite Condensado', desc: 'Fatia generosa com calda de caramelo', price: '12.00', icon: '🍮', badge: 'Favorito' },
+          { id: '14', title: 'Petit Gâteau', desc: 'Acompanha uma bola de sorvete de baunilha', price: '18.00', icon: '🍨', badge: null },
+        ];
+
+      default:
+        return [];
+    }
   };
 
   const filters = getFilters();
