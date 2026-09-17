@@ -23,8 +23,8 @@ import {
   LucideIcon,
 } from 'lucide-react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import Scanner from './scannerView';
 
-// Tipagem das rotas de navegação
 type RootStackParamList = {
   homeView: undefined;
   MenuScreen: { category: string };
@@ -32,7 +32,6 @@ type RootStackParamList = {
 
 type Props = NativeStackScreenProps<RootStackParamList, 'homeView'>;
 
-// Interfaces
 interface Category {
   title: string;
   subtitle: string;
@@ -57,37 +56,37 @@ const menuByService: Record<'local' | 'entrega', MenuConfig> = {
         title: 'Churrasco',
         subtitle: 'Receitas para o almoço e jantar',
         icon: Utensils,
-        imageUrl: 'https://img.magnific.com/fotos-premium/churrasco-tradicional-brasileiro-perto-do-fogo_70216-3339.jpg?semt=ais_hybrid&w=740&q=80',
+        imageUrl: 'https://magnific.com',
       },
       {
         title: 'Lanches',
         subtitle: 'Para dividir ou matar a fome',
         icon: ChefHat,
-        imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80',
+        imageUrl: 'https://unsplash.com',
       },
       {
         title: 'Prato Feito',
         subtitle: 'Receitas para o almoço e jantar',
         icon: Utensils,
-        imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80',
+        imageUrl: 'https://unsplash.com',
       },
       {
         title: 'Bebidas',
         subtitle: 'Geladas, quentes e sem álcool',
         icon: Coffee,
-        imageUrl: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&q=80',
+        imageUrl: 'https://unsplash.com',
       },
       {
         title: 'Porções',
         subtitle: 'Para dividir ou matar a fome',
         icon: ChefHat,
-        imageUrl: 'https://img.magnific.com/fotos-gratis/batatas-fritas-douradas-em-uma-cesta-de-vime-com-fundo-bokeh_84443-86965.jpg?semt=ais_hybrid&w=740&q=80',
+        imageUrl: 'https://magnific.com',
       },
       {
         title: 'Sobremesas',
         subtitle: 'Um final doce para a refeição',
         icon: Dessert,
-        imageUrl: 'https://cdn.pixabay.com/photo/2016/06/12/15/03/cupcakes-1452178_1280.jpg',
+        imageUrl: 'https://pixabay.com',
       },
     ],
   },
@@ -100,25 +99,25 @@ const menuByService: Record<'local' | 'entrega', MenuConfig> = {
         title: 'Prato Feito',
         subtitle: 'Refeições completas para hoje',
         icon: Utensils,
-        imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80',
+        imageUrl: 'https://unsplash.com',
       },
       {
         title: 'Lanches',
         subtitle: 'Favoritos para pedir agora',
         icon: ChefHat,
-        imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80',
+        imageUrl: 'https://unsplash.com',
       },
       {
         title: 'Bebidas',
         subtitle: 'Para acompanhar seu pedido',
         icon: Coffee,
-        imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&q=80',
+        imageUrl: 'https://unsplash.com',
       },
       {
         title: 'Porções',
         subtitle: 'Boas para compartilhar',
         icon: Dessert,
-        imageUrl: 'https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=600&q=80',
+        imageUrl: 'https://unsplash.com',
       },
     ],
   },
@@ -126,22 +125,37 @@ const menuByService: Record<'local' | 'entrega', MenuConfig> = {
 
 export default function HomeScreen({ navigation }: Partial<Props>) {
   const [serviceMode, setServiceMode] = useState<'local' | 'entrega'>('local');
+  const [showScanner, setShowScanner] = useState(false);
+  const [scannedResult, setScannedResult] = useState<string | null>(null);
+
   const menu = menuByService[serviceMode];
 
   const handleMenuPress = () => {
     Alert.alert('Menu', 'Abre o menu de navegação do aplicativo.');
   };
 
-  const handleScanner = () => {
-    Alert.alert(
-      'Scanner em demonstração',
-      'O leitor de QR será conectado ao cardápio do restaurante em uma próxima etapa.'
-    );
+  const handleScanSuccess = (data: string) => {
+    setScannedResult(data);
+    setShowScanner(false);
+    Alert.alert('Mesa Identificada', `Código lido com sucesso! Conteúdo: ${data}`);
+  };
+
+  const handleScannerOpen = () => {
+    setShowScanner(true);
   };
 
   const handleCategory = (categoryName: string) => {
     navigation?.navigate('MenuScreen', { category: categoryName });
   };
+
+  if (showScanner) {
+    return (
+      <Scanner
+        onCodeRead={handleScanSuccess}
+        onClose={() => setShowScanner(false)}
+      />
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -149,7 +163,6 @@ export default function HomeScreen({ navigation }: Partial<Props>) {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
-          {/* Top Bar com Botão de Menu */}
           <View style={styles.header}>
             <Pressable style={styles.menuButton} onPress={handleMenuPress}>
               <Menu size={22} color="#ffffff" />
@@ -160,24 +173,26 @@ export default function HomeScreen({ navigation }: Partial<Props>) {
             </View>
           </View>
 
-          {/* Banner do QR Code */}
           <View style={styles.qrCard}>
             <View style={styles.qrCardContent}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.qrTag}>COMECE POR AQUI</Text>
-                <Text style={styles.qrTitle}>Escaneie sua mesa</Text>
+                <Text style={styles.qrTitle}>
+                  {scannedResult ? `Mesa: ${scannedResult}` : 'Escaneie sua mesa'}
+                </Text>
                 <Text style={styles.qrSub}>
-                  Use o QR code da mesa para personalizar seu atendimento.
+                  {scannedResult
+                    ? 'Seu atendimento já está personalizado para este local.'
+                    : 'Use o QR code da mesa para personalizar seu atendimento.'}
                 </Text>
               </View>
-              <Pressable style={styles.qrButton} onPress={handleScanner}>
+              <Pressable style={styles.qrButton} onPress={handleScannerOpen}>
                 <ScanLine size={28} color="#ffffff" />
               </Pressable>
             </View>
           </View>
         </View>
 
-        {/* Abas de Navegação (No local / Entrega) */}
         <View style={styles.tabsContainer}>
           <View style={styles.tabsWrapper}>
             <Pressable
@@ -218,7 +233,6 @@ export default function HomeScreen({ navigation }: Partial<Props>) {
           </View>
         </View>
 
-        {/* Categorias com Imagem de Fundo */}
         <View style={styles.content}>
           <View style={styles.sectionHeader}>
             <View style={styles.dot} />
@@ -255,11 +269,12 @@ export default function HomeScreen({ navigation }: Partial<Props>) {
             })}
           </View>
 
-          {/* Banner de Aviso/Demonstração */}
           <View style={styles.infoBox}>
             <Info size={20} color="#6344FF" />
             <Text style={styles.infoText}>
-              Demonstração: as categorias e o scanner ainda não estão conectados ao restaurante.
+              {scannedResult
+                ? `Scanner integrado! Código atual gravado: ${scannedResult}`
+                : 'Demonstração: as categorias e o scanner ainda não estão conectados ao restaurante.'}
             </Text>
           </View>
         </View>
