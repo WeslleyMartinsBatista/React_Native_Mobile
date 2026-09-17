@@ -22,6 +22,15 @@ import {
   Menu,
   LucideIcon,
 } from 'lucide-react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+
+// Tipagem das rotas de navegação
+type RootStackParamList = {
+  homeView: undefined;
+  MenuScreen: { category: string };
+};
+
+type Props = NativeStackScreenProps<RootStackParamList, 'homeView'>;
 
 // Interfaces
 interface Category {
@@ -88,7 +97,7 @@ const menuByService: Record<'local' | 'entrega', MenuConfig> = {
     description: 'Veja as opções preparadas para viagem e receba com praticidade.',
     categories: [
       {
-        title: 'Pratos feitos',
+        title: 'Prato Feito',
         subtitle: 'Refeições completas para hoje',
         icon: Utensils,
         imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80',
@@ -115,7 +124,7 @@ const menuByService: Record<'local' | 'entrega', MenuConfig> = {
   },
 };
 
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen({ navigation }: Partial<Props>) {
   const [serviceMode, setServiceMode] = useState<'local' | 'entrega'>('local');
   const menu = menuByService[serviceMode];
 
@@ -131,7 +140,7 @@ export default function HomeScreen({ navigation }) {
   };
 
   const handleCategory = (categoryName: string) => {
-    navigation.navigate('MenuScreen', { category: categoryName });
+    navigation?.navigate('MenuScreen', { category: categoryName });
   };
 
   return (
@@ -414,7 +423,7 @@ const styles = StyleSheet.create({
   categoryOverlay: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.55)', // Camada escura para legibilidade do texto
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
     padding: 16,
     borderRadius: 16,
   },
