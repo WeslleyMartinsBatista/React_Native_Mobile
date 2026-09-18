@@ -20,11 +20,11 @@ import { useCart } from '../store/Cart';
 
 type RootStackParamList = {
   homeView: undefined;
-  cardapioView: { category: string };
+  cardapioView: { category: string } | undefined; 
   Checkout: undefined;
 };
 
-type Props = NativeStackScreenProps<RootStackParamList, 'cardapioView'>;
+type Props = Partial<NativeStackScreenProps<RootStackParamList, 'cardapioView'>>;
 
 const COLORS = {
   background: '#F7F4F0',
@@ -110,7 +110,7 @@ export default function MenuScreen({ route, navigation }: Props) {
     <SafeAreaView style={styles.safeArea}>
       {/* Cabeçalho */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.headerButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.headerButton} onPress={() => navigation?.goBack()}>
           <ArrowLeft color={COLORS.textMain} size={24} />
         </TouchableOpacity>
         
@@ -123,7 +123,7 @@ export default function MenuScreen({ route, navigation }: Props) {
         
         <TouchableOpacity 
           style={[styles.headerButton, styles.cartButton]} 
-          onPress={() => navigation.navigate('Checkout')}>
+          onPress={() => navigation?.navigate('Checkout')}>
           <ShoppingBag color={COLORS.white} size={20} />
           {cartCount > 0 && (
             <View style={styles.badgeCount}>
@@ -135,7 +135,7 @@ export default function MenuScreen({ route, navigation }: Props) {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation?.goBack()}>
           <ArrowLeft color={COLORS.textMuted} size={16} />
           <Text style={styles.backButtonText}>Todas as categorias</Text>
         </TouchableOpacity>
