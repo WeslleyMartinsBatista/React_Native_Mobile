@@ -24,6 +24,7 @@ import {
 } from 'lucide-react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Scanner from './scannerView';
+import { SideMenu } from './sideMenu';
 
 type RootStackParamList = {
   homeView: undefined;
@@ -127,11 +128,27 @@ export default function HomeScreen({ navigation }: Partial<Props>) {
   const [serviceMode, setServiceMode] = useState<'local' | 'entrega'>('local');
   const [showScanner, setShowScanner] = useState(false);
   const [scannedResult, setScannedResult] = useState<string | null>(null);
+  
+  // Estado para controlar a abertura/fechamento do menu lateral
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const menu = menuByService[serviceMode];
 
-  const handleMenuPress = () => {
-    Alert.alert('Menu', 'Abre o menu de navegação do aplicativo.');
+  const handleMenuNavigation = (destination: 'history' | 'favorites' | 'account') => {
+    setIsMenuOpen(false);
+    const label =
+      destination === 'history'
+        ? 'Histórico'
+        : destination === 'favorites'
+        ? 'Favoritos'
+        : 'Conta';
+    Alert.alert(`${label} em breve`, 'Esta área estará disponível quando as contas estiverem conectadas.');
+  };
+
+  const handleSignIn = () => {
+    setIsMenuOpen(false);
+    // Adicione aqui a navegação para a tela de Login se necessário
+    // Exemplo: navigation?.navigate('Login');
   };
 
   const handleScanSuccess = (data: string) => {
@@ -145,9 +162,8 @@ export default function HomeScreen({ navigation }: Partial<Props>) {
   };
 
   const handleCategory = (categoryTitle: string) => {
-    // Altera de 'MenuScreen' para 'cardapioView'
     navigation?.navigate('cardapioView', { category: categoryTitle });
-  }
+  };
 
   if (showScanner) {
     return (
@@ -165,7 +181,7 @@ export default function HomeScreen({ navigation }: Partial<Props>) {
         showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
           <View style={styles.header}>
-            <Pressable style={styles.menuButton} onPress={handleMenuPress}>
+            <Pressable style={styles.menuButton} onPress={() => setIsMenuOpen(true)}>
               <Menu size={22} color="#ffffff" />
             </Pressable>
             <View style={{ alignItems: 'flex-end' }}>
@@ -280,6 +296,16 @@ export default function HomeScreen({ navigation }: Partial<Props>) {
           </View>
         </View>
       </ScrollView>
+
+      {/* Componente do Menu Lateral adicionado */}
+      <SideMenu
+        open={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        onNavigate={handleMenuNavigation}
+        onSignIn={handleSignIn}
+        onSignOut={() => setIsMenuOpen(false)}
+        user={null}
+      />
     </SafeAreaView>
   );
 }
