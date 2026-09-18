@@ -27,7 +27,7 @@ import Scanner from './scannerView';
 
 type RootStackParamList = {
   homeView: undefined;
-  MenuScreen: { category: string };
+  cardapioView: { category: string };
 };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'homeView'>;
@@ -144,9 +144,10 @@ export default function HomeScreen({ navigation }: Partial<Props>) {
     setShowScanner(true);
   };
 
-  const handleCategory = (categoryName: string) => {
-    navigation?.navigate('MenuScreen', { category: categoryName });
-  };
+  const handleCategory = (categoryTitle: string) => {
+    // Altera de 'MenuScreen' para 'cardapioView'
+    navigation?.navigate('cardapioView', { category: categoryTitle });
+  }
 
   if (showScanner) {
     return (
