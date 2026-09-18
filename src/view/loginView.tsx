@@ -27,8 +27,8 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [activeMessage, setActiveMessage] = useState(null);
-  const [invalidField, setInvalidField] = useState(null);
+const [activeMessage, setActiveMessage] = useState<string | null>(null);
+const [invalidField, setInvalidField] = useState<string | null>(null);
 
   const handleLogin = () => {
     if (!email.trim()) {
