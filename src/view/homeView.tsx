@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Alert,
   Pressable,
@@ -6,7 +7,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ImageBackground,
 } from 'react-native';
 import {

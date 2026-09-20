@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   View,
   Text,
@@ -8,7 +9,6 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   Alert
 } from 'react-native';
 import { X } from 'lucide-react-native';
@@ -115,7 +115,7 @@ export default function CheckoutScreen({ route, navigation }) {
               onPress={() => {
                 clearCart();
                 Alert.alert('Sucesso!', 'Seu pedido foi finalizado.');
-                navigation.navigate('Home');
+                navigation.navigate('homeView');
               }}
             >
               <Text style={styles.submitButtonText}>

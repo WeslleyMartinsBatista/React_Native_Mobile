@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  Modal,
   View,
   Text,
   Pressable,
   StyleSheet,
-  SafeAreaView,
+  Animated,
+  Dimensions,
+  Easing,
+  StatusBar,
 } from 'react-native';
 import {
   X,
@@ -16,6 +19,10 @@ import {
   LogOut,
   ChevronRight,
 } from 'lucide-react-native';
+
+// Obtém a largura da tela para calcular a largura do menu (ex: 75% da tela)
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const MENU_WIDTH = SCREEN_WIDTH * 0.75; // Menu ocupará 75% da largura da tela
 
 interface SideMenuProps {
   open: boolean;
@@ -34,14 +41,57 @@ export function SideMenu({
   onSignOut,
   user,
 }: SideMenuProps) {
+  // 1. Criar o valor da animação (começa fora da tela à esquerda, -MENU_WIDTH)
+  const translateX = useRef(new Animated.Value(-MENU_WIDTH)).current;
+  // Valor para o fundo preto transparente (começa em 0, transparente)
+  const overlayOpacity = useRef(new Animated.Value(0)).current;
+
+  // 2. Controlar a animação quando a prop 'open' mudar
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(translateX, {
+        toValue: open ? 0 : -MENU_WIDTH, // Vai para 0 (aparece) ou -MENU_WIDTH (some)
+        duration: 300,
+        easing: Easing.out(Easing.quad), // Suavidade na entrada/saída
+        useNativeDriver: true, // Importante para performance
+      }),
+      Animated.timing(overlayOpacity, {
+        toValue: open ? 1 : 0, // Opacidade total ou transparente
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [open]);
+
+  // Se o menu estiver fechado e a animação já tiver acabado, não renderizar o overlay
+  // Mas para garantir que a animação de saída ocorra, só verificamos o 'open' para renderizar
+  // os componentes. Para fechar, a animação move o menu para fora antes de sumir.
+
+  // Renderizamos sempre, mas usamos pointerEvents para desativar o toque no overlay
+  // quando estiver fechado, prevenindo que o overlay invisível bloqueie a Home.
   return (
-    <Modal
-      visible={open}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <SafeAreaView style={styles.container}>
+    <View style={styles.root} pointerEvents={open ? 'auto' : 'none'}>
+      {/* 3. O Fundo escurecido e clicável */}
+      <Animated.View
+        style={[
+          styles.overlay,
+          {
+            opacity: overlayOpacity, // Controlado pela animação
+          },
+        ]}>
+        {/* Clicar no fundo fecha o menu */}
+        <Pressable style={styles.pressableOverlay} onPress={onClose} />
+      </Animated.View>
+
+      {/* 4. O Painel  SafeAreaView, do Menu Animado */}
+      <Animated.View
+        style={[
+          styles.menuContainer,
+          {
+            transform: [{ translateX }], // A propriedade mágica da animação
+          },
+        ]}>
+        <SafeAreaView style={styles.safeArea}>
           <View style={styles.header}>
             <Text style={styles.title}>Menu</Text>
             <Pressable style={styles.closeButton} onPress={onClose}>
@@ -102,23 +152,51 @@ export function SideMenu({
             </Pressable>
           )}
         </SafeAreaView>
-      </View>
-    </Modal>
+      </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    justifyContent: 'flex-start',
+  // Root view que cobre toda a tela para conter o overlay e o menu
+  root: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    // Opcional: Garante que fique acima de tudo
+    zIndex: 1000,
+    // Corrigir SafeAreaView em Android com StatusBar
+    marginTop: StatusBar.currentHeight,
   },
-  container: {
-    width: '80%',
+  // Fundo escuro transparente que ocupa a tela toda
+  overlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+  },
+  // Área clicável do overlay para fechar
+  pressableOverlay: {
+    flex: 1,
+  },
+  // O painel do menu em si, animado
+  menuContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: MENU_WIDTH, // Definido anteriormente (ex: 75%)
     height: '100%',
     backgroundColor: '#ffffff',
+    elevation: 8, // Sombra no Android
+    shadowColor: '#000', // Sombra no iOS
+    shadowOffset: { width: 2, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+  },
+  safeArea: {
+    flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 10, // Ajuste para SafeAreaView
   },
   header: {
     flexDirection: 'row',
