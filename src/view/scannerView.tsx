@@ -37,7 +37,7 @@ export default function Scanner({ onCodeRead, onClose }: ScannerProps) {
   return (
     <View style={styles.container}>
       <CameraView
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
         facing="back"
         onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
       />
