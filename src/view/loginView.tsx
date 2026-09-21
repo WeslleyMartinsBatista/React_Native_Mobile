@@ -74,9 +74,9 @@ export default function LoginScreen() {
               <View style={styles.iconContainer}>
                 <Utensils size={36} color="#6344FF" />
               </View>
-              <Text style={styles.title}>Bem-vindo</Text>
+              <Text style={styles.title}>Login</Text>
               <Text style={styles.subtitle}>
-                Entre para guardar seus pedidos ou explore o cardápio como visitante.
+                Entre para guardar seu historico de compra ou fazer pedidos de casa.
               </Text>
             </View>
 
