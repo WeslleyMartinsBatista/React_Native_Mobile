@@ -15,6 +15,7 @@ import { X } from 'lucide-react-native';
 import { useCart } from '../store/Cart';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App'; // Ajuste o caminho relativo até o App.tsx se necessário
+import { TableSession } from '../store/table-session';
 
 const COLORS = {
   overlayBg: 'rgba(26, 26, 26, 0.6)',
@@ -36,20 +37,59 @@ export default function CheckoutScreen({ route, navigation }: Props) {
   const [paymentMethod, setPaymentMethod] = useState('pix'); 
   const [changeAmount, setChangeAmount] = useState('');
 
-  // 1. Puxando dados e função de limpeza do carrinho
+  // 1. Puxando dados do carrinho
   const { cartTotal, clearCart } = useCart();
 
+  // 2. Consulta a mesa salva na sessão
+  const activeTable = TableSession.getTable();
+
   const isDelivery = orderType === 'delivery';
-  const title = isDelivery ? 'Pagamento da entrega' : 'Pagamento no local';
+  
+  // Exibe o título com o número da mesa caso exista
+  const title = isDelivery 
+    ? 'Pagamento da entrega' 
+    : (activeTable ? `Pagamento - Mesa ${activeTable}` : 'Pagamento no local');
+    
   const totalLabel = isDelivery ? 'Total com entrega' : 'Total da comanda';
   
-  // 2. Calcula o valor final dinâmico (com taxa de + R$ 6.00 pro delivery)
+  // Calcula o valor final dinâmico (+ R$ 6.00 para delivery)
   const valorFinal = isDelivery ? cartTotal + 6.00 : cartTotal;
-  
-  // 3. Formatação R$ 00,00
   const totalValue = `R$ ${valorFinal.toFixed(2).replace('.', ',')}`;
 
   const isButtonDisabled = paymentMethod === 'dinheiro' && changeAmount.trim() === '';
+
+  // 3. Função de Validação e Finalização do Pedido
+  const handleFinalizeOrder = () => {
+    // Se for pedido no local e a pessoa AINDA NÃO escaneou a mesa
+    if (!isDelivery && !activeTable) {
+      Alert.alert(
+        'Mesa não identificada',
+        'Para realizar o pedido no local, por favor escaneie o QR Code localizado na sua mesa.',
+        [
+          { 
+            text: 'Escanear QR Code', 
+            onPress: () => navigation.navigate('scannerView' as never) 
+          },
+          { text: 'Cancelar', style: 'cancel' }
+        ]
+      );
+      return;
+    }
+
+    // Caso a mesa já esteja identificada ou seja delivery:
+    clearCart();
+
+    const msgSucesso = isDelivery 
+      ? 'Seu pedido para entrega foi enviado com sucesso!' 
+      : `Seu pedido para a Mesa ${activeTable} foi enviado para a cozinha!`;
+
+    Alert.alert('Pedido Confirmado!', msgSucesso);
+
+    // Opcional: Se quiser limpar a mesa após finalizar a conta
+    // TableSession.clearTable();
+
+    navigation.navigate('homeView' as never);
+  };
 
   const renderPaymentOption = (id: string, label: string) => {
     const isSelected = paymentMethod === id;
@@ -112,15 +152,11 @@ export default function CheckoutScreen({ route, navigation }: Props) {
               </View>
             )}
 
-            {/* 4. Botão Finaliza e Zera a Sacola */}
+            {/* 4. Botão Chama o handleFinalizeOrder */}
             <TouchableOpacity 
               style={[styles.submitButton, isButtonDisabled && styles.submitButtonDisabled]}
               disabled={isButtonDisabled}
-              onPress={() => {
-                clearCart();
-                Alert.alert('Sucesso!', 'Seu pedido foi finalizado.');
-                navigation.navigate('homeView');
-              }}
+              onPress={handleFinalizeOrder}
             >
               <Text style={styles.submitButtonText}>
                 {paymentMethod === 'pix' ? 'Confirmar pagamento' : 'Finalizar pedido'}

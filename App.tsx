@@ -18,10 +18,10 @@ import adminView from './src/view/adminView';
 // Definição das rotas
 export type RootStackParamList = {
   homeView: undefined;
-  cardapioView: { category: string } | undefined;
+  cardapioView: { category?: string; table?: string } | undefined; 
   loginView: undefined;
   registerView: undefined;
-  Checkout: { orderType?: string } | undefined; 
+  Checkout: { orderType?: string; table?: string } | undefined;
   adminView: undefined;
   atendimentoView: undefined;
   cozinhaView: undefined;
@@ -29,12 +29,10 @@ export type RootStackParamList = {
 
 // Configuração de Linking para mapear as URLs no navegador
 const linking: LinkingOptions<RootStackParamList> = {
-  prefixes: ['http://localhost:8081', 'http://localhost:19006'],
+  prefixes: ['http://localhost:8081', 'http://localhost:19006', 'https://seu-app.vercel.app'],
   config: {
     screens: {
       homeView: '',
-      loginView: 'loginView',
-      registerView: 'registerView',
       cardapioView: 'cardapioView',
       Checkout: 'Checkout',
       adminView: 'AdminView',
