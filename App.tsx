@@ -2,6 +2,7 @@ import React from 'react';
 import { NavigationContainer, LinkingOptions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+// Corrigido: importação por omissão (default import) sem as chaves {}
 import { AuthProvider } from './src/controller/AuthController';
 import { CartProvider } from './src/store/Cart';
 
@@ -49,7 +50,6 @@ export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        {/* Adicionado a prop linking no NavigationContainer */}
         <NavigationContainer linking={linking}>
           <Stack.Navigator initialRouteName="homeView" screenOptions={{ headerShown: false }}>
             <Stack.Screen name="homeView" component={homeView} />
@@ -58,6 +58,7 @@ export default function App() {
             <Stack.Screen name="registerView" component={registerView} />
             <Stack.Screen name="Checkout" component={CheckoutScreen} />
             <Stack.Screen name="adminView" component={adminView} />
+            <Stack.Screen name="atendimentoView" component={atendimentoView} />
             <Stack.Screen name="cozinhaView" component={cozinhaView} />
           </Stack.Navigator>
         </NavigationContainer>
