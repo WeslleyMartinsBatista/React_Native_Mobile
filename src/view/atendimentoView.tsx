@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
-  Platform,
+  useWindowDimensions // <-- Hook importado para responsividade
 } from 'react-native';
 import { 
   Flame, 
@@ -19,25 +19,31 @@ import {
 } from 'lucide-react-native';
 
 const COLORS = {
-  background: '#F7F4F0', // Fundo bege claro
+  background: '#F7F4F0',
   white: '#FFFFFF',
-  dark: '#2A2421',       // Marrom escuro da central de atenção
-  primary: '#C84325',    // Vermelho/Laranja dos botões
+  dark: '#2A2421',
+  primary: '#C84325',
   primaryHover: '#A6331A',
   grayLight: '#EBE8E2',
-  grayCardBg: '#F3F1EC', // Fundo dos cards de pedidos
+  grayCardBg: '#F3F1EC',
   border: '#E0DDD6',
   textMain: '#1A1A1A',
   textMuted: '#7A7571',
   
-  // Cores de Status das Mesas
-  statusLivre: '#E0E0E0',     // Cinza
-  statusOcupada: '#2E7D32',   // Verde
-  statusAguardando: '#F57F17', // Amarelo
-  statusChamado: '#C62828',    // Vermelho
+  statusLivre: '#E0E0E0',
+  statusOcupada: '#2E7D32',
+  statusAguardando: '#F57F17',
+  statusChamado: '#C62828',
 };
 
-export default function AttendantDashboardScreen({ navigation }) {
+export default function AttendantDashboardScreen({ navigation }: any) {
+  // ==========================================
+  // RESPONSIVIDADE EM TEMPO REAL
+  // ==========================================
+  const { width } = useWindowDimensions();
+  const isLargeScreen = width > 768;
+  const styles = useMemo(() => getStyles(isLargeScreen), [isLargeScreen]);
+
   // Mock Data
   const tables = [
     { id: '1', number: '01', status: 'Livre', color: COLORS.statusLivre },
@@ -86,7 +92,7 @@ export default function AttendantDashboardScreen({ navigation }) {
         </View>
 
         {/* ==========================================
-            NOVO LAYOUT: INDICADORES (Esquerda) + CENTRAL (Direita)
+            LAYOUT DINÂMICO: INDICADORES E CENTRAL
         ========================================== */}
         <View style={styles.topSectionRow}>
           
@@ -151,7 +157,7 @@ export default function AttendantDashboardScreen({ navigation }) {
         </View>
 
         {/* ==========================================
-            MAPA DE MESAS (100% de Largura)
+            MAPA DE MESAS
         ========================================== */}
         <View style={styles.fullWidthSection}>
           <View style={styles.sectionHeader}>
@@ -172,7 +178,7 @@ export default function AttendantDashboardScreen({ navigation }) {
             ))}
           </View>
 
-          {/* Legenda */}
+          {/* Legenda responsiva */}
           <View style={styles.legendRow}>
             <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: COLORS.statusOcupada }]} /><Text style={styles.legendText}>Ocupada</Text></View>
             <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: COLORS.statusAguardando }]} /><Text style={styles.legendText}>Aguardando</Text></View>
@@ -233,9 +239,12 @@ export default function AttendantDashboardScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+// ==========================================
+// ESTILOS DINÂMICOS BASEADOS NO TAMANHO DA TELA
+// ==========================================
+const getStyles = (isLargeScreen: boolean) => StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: COLORS.background },
-  scrollContent: { padding: 24, paddingBottom: 60 },
+  scrollContent: { padding: isLargeScreen ? 32 : 20, paddingBottom: 60 },
 
   // --- Header ---
   header: { marginBottom: 30, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
@@ -244,14 +253,14 @@ const styles = StyleSheet.create({
   logoText: { fontSize: 14, fontWeight: '700', color: COLORS.textMain },
   badge: { borderWidth: 1, borderColor: COLORS.border, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
   badgeText: { fontSize: 10, fontWeight: '600', color: COLORS.textMuted },
-  greetingTitle: { fontSize: 26, fontWeight: 'bold', color: COLORS.textMain, letterSpacing: -0.5 },
+  greetingTitle: { fontSize: isLargeScreen ? 28 : 24, fontWeight: 'bold', color: COLORS.textMain, letterSpacing: -0.5 },
   greetingSubtitle: { fontSize: 14, color: COLORS.textMuted, marginTop: 4 },
   logoutButton: { backgroundColor: COLORS.white, borderWidth: 1, borderColor: COLORS.border, paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8 },
   logoutText: { fontSize: 13, fontWeight: '600', color: COLORS.textMain },
 
-  // --- Novo Layout: Indicadores e Central (Lado a Lado) ---
+  // --- Layout: Indicadores e Central (Lado a Lado ou Empilhado) ---
   topSectionRow: {
-    flexDirection: Platform.OS === 'web' || Platform.isPad ? 'row' : 'column',
+    flexDirection: isLargeScreen ? 'row' : 'column',
     gap: 20,
     marginBottom: 24,
   },
@@ -275,7 +284,7 @@ const styles = StyleSheet.create({
 
   // Coluna Direita: Central Escura
   attentionPanel: {
-    flex: 1.2, // Ocupa um pouco mais de espaço se a tela permitir
+    flex: 1.2,
     backgroundColor: COLORS.dark,
     borderRadius: 16,
     padding: 20,
@@ -299,10 +308,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
     borderRadius: 16,
-    padding: 24,
+    padding: isLargeScreen ? 24 : 20,
     marginBottom: 24,
   },
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, paddingRight: isLargeScreen ? 0 : 20 },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', color: COLORS.textMain, marginBottom: 4 },
   sectionSubtitle: { fontSize: 13, color: COLORS.textMuted },
   sectionCount: { fontSize: 12, fontWeight: '600', color: COLORS.textMuted },
@@ -315,7 +324,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   tableCard: {
-    width: Platform.OS === 'web' || Platform.isPad ? '23%' : '47%', // 4 colunas em telas grandes, 2 em celulares
+    width: isLargeScreen ? '23%' : '47%', 
     backgroundColor: COLORS.background,
     borderWidth: 1,
     borderColor: COLORS.border,
@@ -326,7 +335,7 @@ const styles = StyleSheet.create({
   tableNumber: { fontSize: 16, fontWeight: 'bold', color: COLORS.textMain, marginBottom: 4 },
   tableStatus: { fontSize: 13, color: COLORS.textMuted },
   
-  legendRow: { flexDirection: 'row', gap: 16, borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 16 },
+  legendRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 16, borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 16 },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   legendDot: { width: 8, height: 8, borderRadius: 4 },
   legendText: { fontSize: 12, color: COLORS.textMuted, fontWeight: '500' },
@@ -338,7 +347,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   orderCard: {
-    width: Platform.OS === 'web' || Platform.isPad ? '48%' : '100%', // 2 colunas em telas grandes, 1 em celulares
+    width: isLargeScreen ? '48%' : '100%',
     backgroundColor: COLORS.grayCardBg,
     borderRadius: 12,
     padding: 20,
@@ -353,7 +362,7 @@ const styles = StyleSheet.create({
   orderTable: { fontSize: 16, fontWeight: 'bold', color: COLORS.textMain, marginBottom: 4 },
   orderItems: { fontSize: 13, color: COLORS.textMuted, marginBottom: 20 },
   
-  orderFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  orderFooter: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, justifyContent: 'space-between', alignItems: 'center' },
   orderStatusBadge: { backgroundColor: COLORS.white, borderWidth: 1, borderColor: COLORS.border, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6 },
   orderStatusText: { fontSize: 12, fontWeight: '600', color: COLORS.textMuted },
   actionButton: { backgroundColor: COLORS.primary, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 6 },

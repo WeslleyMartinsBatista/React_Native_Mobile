@@ -1,48 +1,26 @@
-import React, { createContext, useState, useContext } from 'react';
+import { MockDatabase } from '../models/mockDatabase';
 
-const AuthContext = createContext({});
+// Exemplo em um handler de Login
+const handleLogin = async () => {
+  const response = await MockDatabase.login(emailInput, passwordInput);
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-
-  const login = async (email, password) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        // Validação de Cliente (App padrão)
-        if (email === 'lucas@gmail.com' && password === '123456') {
-          const clientUser = { id: 1, name: 'Lucas', role: 'CLIENT', email };
-          setUser(clientUser);
-          resolve(clientUser);
-        } 
-        // Validação de Atendente / Caixa (AdminDashboard)
-        else if (email === 'joao@gmail.com' && password === '123456') {
-          const adminUser = { id: 2, name: 'João', role: 'ADMIN', email };
-          setUser(adminUser);
-          resolve(adminUser);
-        } 
-        // Validação de Cozinha (KitchenDisplay)
-        else if (email === 'augusto@gmail.com' && password === '123456') {
-          const kitchenUser = { id: 3, name: 'Augusto', role: 'KITCHEN', email };
-          setUser(kitchenUser);
-          resolve(kitchenUser);
-        } 
-        // Falha
-        else {
-          reject(new Error('Credenciais inválidas. Tente usar as contas de demonstração.'));
-        }
-      }, 800); // Simulando tempo de requisição
-    });
-  };
-
-  const logout = () => {
-    setUser(null);
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  if (response.success) {
+    console.log('Utilizador logado:', response.user);
+    console.log('Token:', response.token);
+    // Redirecionar para a Home ou Salvar na Session/Store
+  } else {
+    alert(response.message);
+  }
 };
 
-export const useAuth = () => useContext(AuthContext);
+// Exemplo em um handler de Registro
+const handleRegister = async () => {
+  const response = await MockDatabase.register(nameInput, emailInput, passwordInput);
+
+  if (response.success) {
+    console.log('Novo registo:', response.user);
+    // Redirecionar para a Home/Login
+  } else {
+    alert(response.message);
+  }
+};
