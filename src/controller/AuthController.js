@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext } from 'react';
-import { MockDatabase } from '../models/mockDatabase';
+import { MockDatabase } from '../database/mockDatabase';
 
 // Criação do Contexto
 export const AuthContext = createContext({});
