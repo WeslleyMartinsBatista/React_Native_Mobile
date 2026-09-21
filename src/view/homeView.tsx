@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Alert,
@@ -25,12 +25,8 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Scanner from './scannerView';
 import { SideMenu } from '../components/sideMenu';
-
-type RootStackParamList = {
-  homeView: undefined;
-  cardapioView: { category: string };
-  loginView: undefined; // <-- Adicione esta linha
-};
+import { RootStackParamList } from '../../App';
+import { TableSession } from '../store/table-session';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'homeView'>;
 
@@ -125,37 +121,33 @@ const menuByService: Record<'local' | 'entrega', MenuConfig> = {
   },
 };
 
-export default function HomeScreen({ navigation }: Partial<Props>) {
+export default function HomeScreen({ navigation, route }: Props) {
   const [serviceMode, setServiceMode] = useState<'local' | 'entrega'>('local');
   const [showScanner, setShowScanner] = useState(false);
-  const [scannedResult, setScannedResult] = useState<string | null>(null);
-  
-  // Estado para controlar a abertura/fechamento do menu lateral
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Captura o parâmetro 'table' enviado pela URL ou rota
+  const urlTable = route.params?.table;
+
+  useEffect(() => {
+    if (urlTable) {
+      TableSession.setTable(urlTable);
+    }
+  }, [urlTable]);
+
+  // Consulta a mesa gravada na sessão ou o parâmetro vindo da URL
+  const activeTable = TableSession.getTable() || urlTable;
 
   const menu = menuByService[serviceMode];
 
-  const handleMenuNavigation = (destination: 'history' | 'favorites' | 'account') => {
-    setIsMenuOpen(false);
-    const label =
-      destination === 'history'
-        ? 'Histórico'
-        : destination === 'favorites'
-        ? 'Favoritos'
-        : 'Conta';
-    Alert.alert(`${label} em breve`, 'Esta área estará disponível quando as contas estiverem conectadas.');
-  };
-
-  const handleSignIn = () => {
-    setIsMenuOpen(false);
-    // Adicione aqui a navegação para a tela de Login se necessário
-    // Exemplo: navigation?.navigate('Login');
-  };
-
   const handleScanSuccess = (data: string) => {
-    setScannedResult(data);
+    let tableNum = data;
+    if (data.includes('table=')) {
+      tableNum = data.split('table=')[1].split('&')[0];
+    }
+    TableSession.setTable(tableNum);
     setShowScanner(false);
-    Alert.alert('Mesa Identificada', `Código lido com sucesso! Conteúdo: ${data}`);
+    Alert.alert('Mesa Identificada', `Mesa ${tableNum} salva na sessão!`);
   };
 
   const handleScannerOpen = () => {
@@ -163,7 +155,7 @@ export default function HomeScreen({ navigation }: Partial<Props>) {
   };
 
   const handleCategory = (categoryTitle: string) => {
-    navigation?.navigate('cardapioView', { category: categoryTitle });
+    navigation.navigate('cardapioView', { category: categoryTitle });
   };
 
   if (showScanner) {
@@ -194,12 +186,14 @@ export default function HomeScreen({ navigation }: Partial<Props>) {
           <View style={styles.qrCard}>
             <View style={styles.qrCardContent}>
               <View style={{ flex: 1 }}>
-                <Text style={styles.qrTag}>COMECE POR AQUI</Text>
+                <Text style={styles.qrTag}>
+                  {activeTable ? 'MESA SELECIONADA' : 'COMECE POR AQUI'}
+                </Text>
                 <Text style={styles.qrTitle}>
-                  {scannedResult ? `Mesa: ${scannedResult}` : 'Escaneie sua mesa'}
+                  {activeTable ? `Mesa: ${activeTable}` : 'Escaneie sua mesa'}
                 </Text>
                 <Text style={styles.qrSub}>
-                  {scannedResult
+                  {activeTable
                     ? 'Seu atendimento já está personalizado para este local.'
                     : 'Use o QR code da mesa para personalizar seu atendimento.'}
                 </Text>
@@ -290,9 +284,9 @@ export default function HomeScreen({ navigation }: Partial<Props>) {
           <View style={styles.infoBox}>
             <Info size={20} color="#6344FF" />
             <Text style={styles.infoText}>
-              {scannedResult
-                ? `Scanner integrado! Código atual gravado: ${scannedResult}`
-                : 'Demonstração: as categorias e o scanner ainda não estão conectados ao restaurante.'}
+              {activeTable
+                ? `Você está atendido na Mesa ${activeTable}.`
+                : 'Você pode visualizar o cardápio livremente ou escanear a mesa a qualquer momento.'}
             </Text>
           </View>
         </View>
@@ -302,17 +296,12 @@ export default function HomeScreen({ navigation }: Partial<Props>) {
       <SideMenu
         open={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
-        onNavigate={(destination) => {
-          setIsMenuOpen(false);
-          // Adicione a lógica para as outras telas se necessário
-        }}
+        onNavigate={() => setIsMenuOpen(false)}
         onSignIn={() => {
           setIsMenuOpen(false);
-          navigation?.navigate('loginView');
+          navigation.navigate('loginView');
         }}
-        onSignOut={() => {
-          setIsMenuOpen(false);
-        }}
+        onSignOut={() => setIsMenuOpen(false)}
         user={null}
       />
     </SafeAreaView>

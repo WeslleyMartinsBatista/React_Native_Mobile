@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
-import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
-import { TableSession } from '../store/table-session';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 
 interface ScannerProps {
   onCodeRead: (data: string) => void;
@@ -37,14 +36,9 @@ export default function Scanner({ onCodeRead, onClose }: ScannerProps) {
   }
 
   const handleBarCodeScanned = ({ data }: { data: string }) => {
-    // Extrai apenas o número da mesa caso o QR Code seja um link ou texto simples
-    const tableNum = data.includes('mesa=') ? data.split('mesa=')[1] : data;
-
-    // Salva no estado global da sessão
-    TableSession.setTable(tableNum);
-
-    // Redireciona para o cardápio sem fechar o acesso livre
-    navigation.navigate('cardapioView');
+    setScanned(true);
+    // Dispara o callback para a homeView tratar a leitura do código
+    onCodeRead(data);
   };
 
   return (
@@ -98,7 +92,7 @@ const styles = StyleSheet.create({
     width: 250,
     height: 250,
     borderWidth: 2,
-    borderColor: '#6344FF', // Ajustado para o roxo padrão do projeto
+    borderColor: '#6344FF',
     backgroundColor: 'transparent',
     borderRadius: 16,
   },

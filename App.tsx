@@ -17,11 +17,11 @@ import adminView from './src/view/adminView';
 
 // Definição das rotas
 export type RootStackParamList = {
-  homeView: undefined;
-  cardapioView: { category?: string; table?: string } | undefined; 
+  homeView: { table?: string } | undefined;
+  cardapioView: { category?: string } | undefined;
   loginView: undefined;
   registerView: undefined;
-  Checkout: { orderType?: string; table?: string } | undefined;
+  Checkout: { orderType?: string } | undefined;
   adminView: undefined;
   atendimentoView: undefined;
   cozinhaView: undefined;
