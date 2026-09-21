@@ -8,10 +8,10 @@ import { CartProvider } from './src/store/Cart';
 import homeView from './src/view/homeView';
 import cardapioView from './src/view/cardapioView';
 import loginView from './src/view/loginView';
-import RegisterScreen from './src/view/RegisterScreen';
-import CheckoutScreen from './src/view/CheckoutScreen';
-import AttendantDashboardScreen from './src/view/AttendantDashboardScreen';
-import KitchenDisplayScreen from './src/view/KitchenDisplayScreen';
+import RegisterScreen from './src/view/registerView';
+import CheckoutScreen from './src/view/checkoutView';
+import AttendantDashboardScreen from './src/view/atendimentoView';
+import KitchenDisplayScreen from './src/view/cozinhaView';
 
 const Stack = createNativeStackNavigator();
 
