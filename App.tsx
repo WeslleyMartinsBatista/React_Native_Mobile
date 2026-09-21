@@ -2,6 +2,7 @@ import React from 'react';
 import { NavigationContainer, LinkingOptions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+// Corrigido: importação por omissão (default import) sem as chaves {}
 import { AuthProvider } from './src/controller/AuthController';
 import { CartProvider } from './src/store/Cart';
 
@@ -10,8 +11,9 @@ import cardapioView from './src/view/cardapioView';
 import loginView from './src/view/loginView';
 import registerView from './src/view/registerView';
 import CheckoutScreen from './src/view/checkoutView';
-import AttendantDashboardScreen from './src/view/atendimentoView';
-import KitchenDisplayScreen from './src/view/cozinhaView';
+import atendimentoView from './src/view/atendimentoView';
+import cozinhaView from './src/view/cozinhaView';
+import adminView from './src/view/adminView';
 
 // Definição das rotas
 export type RootStackParamList = {
@@ -20,8 +22,9 @@ export type RootStackParamList = {
   loginView: undefined;
   registerView: undefined;
   Checkout: undefined;
-  AdminDashboard: undefined;
-  KitchenDisplay: undefined;
+  adminView: undefined;
+  atendimentoView: undefined;
+  cozinhaView: undefined;
 };
 
 // Configuração de Linking para mapear as URLs no navegador
@@ -34,8 +37,9 @@ const linking: LinkingOptions<RootStackParamList> = {
       registerView: 'registerView',
       cardapioView: 'cardapioView',
       Checkout: 'Checkout',
-      AdminDashboard: 'AdminDashboard',
-      KitchenDisplay: 'KitchenDisplay',
+      adminView: 'AdminView',
+      atendimentoView: 'atendimentoView',
+      cozinhaView: 'cozinhaView',
     },
   },
 };
@@ -46,7 +50,6 @@ export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        {/* Adicionado a prop linking no NavigationContainer */}
         <NavigationContainer linking={linking}>
           <Stack.Navigator initialRouteName="homeView" screenOptions={{ headerShown: false }}>
             <Stack.Screen name="homeView" component={homeView} />
@@ -54,8 +57,9 @@ export default function App() {
             <Stack.Screen name="loginView" component={loginView} />
             <Stack.Screen name="registerView" component={registerView} />
             <Stack.Screen name="Checkout" component={CheckoutScreen} />
-            <Stack.Screen name="AdminDashboard" component={AttendantDashboardScreen} />
-            <Stack.Screen name="KitchenDisplay" component={KitchenDisplayScreen} />
+            <Stack.Screen name="adminView" component={adminView} />
+            <Stack.Screen name="atendimentoView" component={atendimentoView} />
+            <Stack.Screen name="cozinhaView" component={cozinhaView} />
           </Stack.Navigator>
         </NavigationContainer>
       </CartProvider>
