@@ -17,6 +17,8 @@ import {
 } from 'lucide-react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCart } from '../store/Cart';
+import CartBar from '../components/cartBar';
+import CartModal from '../components/cartModal';
 
 type RootStackParamList = {
   homeView: undefined;
@@ -42,6 +44,7 @@ export default function MenuScreen({ route, navigation }: Props) {
   const category = route?.params?.category || 'Churrasco';
   const [activeFilter, setActiveFilter] = useState('Todos');
   const { addToCart, cartCount } = useCart();
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   const getFilters = () => {
     const cat = category.toLowerCase().trim();
@@ -121,9 +124,10 @@ export default function MenuScreen({ route, navigation }: Props) {
           <Text style={styles.logoText}>Fogo & Fumaça</Text>
         </View>
         
+        {/* Ao clicar no ícone do topo, abre o modal em vez de ir direto ao Checkout */}
         <TouchableOpacity 
           style={[styles.headerButton, styles.cartButton]} 
-          onPress={() => navigation?.navigate('Checkout')}>
+          onPress={() => setIsCartOpen(true)}>
           <ShoppingBag color={COLORS.white} size={20} />
           {cartCount > 0 && (
             <View style={styles.badgeCount}>
@@ -202,6 +206,19 @@ export default function MenuScreen({ route, navigation }: Props) {
           ))}
         </View>
       </ScrollView>
+
+      {/* 1. Barra Flutuante no Rodapé */}
+      <CartBar onPress={() => setIsCartOpen(true)} />
+
+      {/* 2. Modal do Carrinho */}
+      <CartModal
+        visible={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        onCheckout={() => {
+          setIsCartOpen(false);
+          navigation?.navigate('Checkout');
+        }}
+      />
 
       <TouchableOpacity style={styles.fab} activeOpacity={0.9}>
         <BellRing color={COLORS.white} size={20} strokeWidth={2.5} />

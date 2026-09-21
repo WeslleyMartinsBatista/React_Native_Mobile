@@ -24,7 +24,7 @@ import {
 } from 'lucide-react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Scanner from './scannerView';
-import { SideMenu } from './sideMenu';
+import { SideMenu } from '../components/sideMenu';
 
 type RootStackParamList = {
   homeView: undefined;
