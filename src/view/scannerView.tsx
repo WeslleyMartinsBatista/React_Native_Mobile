@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
-import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
-import { TableSession } from '../store/table-session';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 
 interface ScannerProps {
   onCodeRead: (data: string) => void;
@@ -37,17 +36,9 @@ export default function Scanner({ onCodeRead, onClose }: ScannerProps) {
   }
 
   const handleBarCodeScanned = ({ data }: { data: string }) => {
-    // Extrai o número da mesa caso a URL seja do tipo https://seu-app.vercel.app/?table=5
-    let tableNum = data;
-    if (data.includes('table=')) {
-      tableNum = data.split('table=')[1].split('&')[0];
-    }
-
-    // Guarda na sessão
-    TableSession.setTable(tableNum);
-
-    // Redireciona para a Home exibindo o número da mesa
-    navigation.navigate('homeView', { table: tableNum });
+    setScanned(true);
+    // Dispara o callback para a homeView tratar a leitura do código
+    onCodeRead(data);
   };
 
   return (
@@ -101,7 +92,7 @@ const styles = StyleSheet.create({
     width: 250,
     height: 250,
     borderWidth: 2,
-    borderColor: '#6344FF', // Ajustado para o roxo padrão do projeto
+    borderColor: '#6344FF',
     backgroundColor: 'transparent',
     borderRadius: 16,
   },
