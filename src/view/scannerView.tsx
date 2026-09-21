@@ -37,14 +37,17 @@ export default function Scanner({ onCodeRead, onClose }: ScannerProps) {
   }
 
   const handleBarCodeScanned = ({ data }: { data: string }) => {
-    // Extrai apenas o número da mesa caso o QR Code seja um link ou texto simples
-    const tableNum = data.includes('mesa=') ? data.split('mesa=')[1] : data;
+    // Extrai o número da mesa caso a URL seja do tipo https://seu-app.vercel.app/?table=5
+    let tableNum = data;
+    if (data.includes('table=')) {
+      tableNum = data.split('table=')[1].split('&')[0];
+    }
 
-    // Salva no estado global da sessão
+    // Guarda na sessão
     TableSession.setTable(tableNum);
 
-    // Redireciona para o cardápio sem fechar o acesso livre
-    navigation.navigate('cardapioView');
+    // Redireciona para a Home exibindo o número da mesa
+    navigation.navigate('homeView', { table: tableNum });
   };
 
   return (

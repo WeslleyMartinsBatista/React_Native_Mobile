@@ -14,7 +14,7 @@ import {
 import { X } from 'lucide-react-native';
 import { useCart } from '../store/Cart';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../App'; // Ajuste o caminho relativo até o App.tsx se necessário
+import { RootStackParamList } from '../../App';
 import { TableSession } from '../store/table-session';
 
 const COLORS = {
@@ -33,34 +33,35 @@ const COLORS = {
 type Props = NativeStackScreenProps<RootStackParamList, 'Checkout'>;
 
 export default function CheckoutScreen({ route, navigation }: Props) {
-  const orderType = route?.params?.orderType || 'local'; 
+  // 1. Consulta a mesa salva na sessão
+  const activeTable = TableSession.getTable();
+
+  // 2. Se houver mesa guardada, força OBRIGATORIAMENTE o tipo 'local'
+  const orderType = activeTable ? 'local' : (route?.params?.orderType || 'local'); 
+  const isDelivery = orderType === 'delivery';
+
   const [paymentMethod, setPaymentMethod] = useState('pix'); 
   const [changeAmount, setChangeAmount] = useState('');
 
-  // 1. Puxando dados do carrinho
+  // 3. Puxa dados do carrinho
   const { cartTotal, clearCart } = useCart();
 
-  // 2. Consulta a mesa salva na sessão
-  const activeTable = TableSession.getTable();
-
-  const isDelivery = orderType === 'delivery';
-  
-  // Exibe o título com o número da mesa caso exista
+  // Exibe o título dinâmico com base na mesa
   const title = isDelivery 
     ? 'Pagamento da entrega' 
     : (activeTable ? `Pagamento - Mesa ${activeTable}` : 'Pagamento no local');
     
   const totalLabel = isDelivery ? 'Total com entrega' : 'Total da comanda';
   
-  // Calcula o valor final dinâmico (+ R$ 6.00 para delivery)
+  // Calcula o valor final (+ R$ 6,00 apenas se for entrega)
   const valorFinal = isDelivery ? cartTotal + 6.00 : cartTotal;
   const totalValue = `R$ ${valorFinal.toFixed(2).replace('.', ',')}`;
 
   const isButtonDisabled = paymentMethod === 'dinheiro' && changeAmount.trim() === '';
 
-  // 3. Função de Validação e Finalização do Pedido
+  // 4. Validação e Finalização do Pedido
   const handleFinalizeOrder = () => {
-    // Se for pedido no local e a pessoa AINDA NÃO escaneou a mesa
+    // Se for pedido no local sem mesa identificada
     if (!isDelivery && !activeTable) {
       Alert.alert(
         'Mesa não identificada',
@@ -76,7 +77,6 @@ export default function CheckoutScreen({ route, navigation }: Props) {
       return;
     }
 
-    // Caso a mesa já esteja identificada ou seja delivery:
     clearCart();
 
     const msgSucesso = isDelivery 
@@ -85,16 +85,18 @@ export default function CheckoutScreen({ route, navigation }: Props) {
 
     Alert.alert('Pedido Confirmado!', msgSucesso);
 
-    // Opcional: Se quiser limpar a mesa após finalizar a conta
-    // TableSession.clearTable();
-
     navigation.navigate('homeView' as never);
   };
 
   const renderPaymentOption = (id: string, label: string) => {
     const isSelected = paymentMethod === id;
     return (
-      <TouchableOpacity key={id} style={[styles.radioCard, isSelected && styles.radioCardSelected]} onPress={() => setPaymentMethod(id)} activeOpacity={0.8}>
+      <TouchableOpacity 
+        key={id} 
+        style={[styles.radioCard, isSelected && styles.radioCardSelected]} 
+        onPress={() => setPaymentMethod(id)} 
+        activeOpacity={0.8}
+      >
         <Text style={[styles.radioLabel, isSelected && styles.radioLabelSelected]}>{label}</Text>
         <View style={[styles.radioCircle, isSelected && styles.radioCircleSelected]} />
       </TouchableOpacity>
@@ -148,11 +150,17 @@ export default function CheckoutScreen({ route, navigation }: Props) {
             {paymentMethod === 'dinheiro' && isDelivery && (
               <View style={styles.cashContainer}>
                 <Text style={styles.cashTitle}>Com quanto você vai pagar?</Text>
-                <TextInput style={styles.cashInput} placeholder="Ex.: 100,00" placeholderTextColor={COLORS.textMuted} keyboardType="numeric" value={changeAmount} onChangeText={setChangeAmount} />
+                <TextInput 
+                  style={styles.cashInput} 
+                  placeholder="Ex.: 100,00" 
+                  placeholderTextColor={COLORS.textMuted} 
+                  keyboardType="numeric" 
+                  value={changeAmount} 
+                  onChangeText={setChangeAmount} 
+                />
               </View>
             )}
 
-            {/* 4. Botão Chama o handleFinalizeOrder */}
             <TouchableOpacity 
               style={[styles.submitButton, isButtonDisabled && styles.submitButtonDisabled]}
               disabled={isButtonDisabled}
