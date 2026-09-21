@@ -11,9 +11,11 @@ export interface CartItem {
   quantity: number;
 }
 
-// 2. Definição do contrato (Shape) do Contexto
+// 2. Definição do contrato (Shape) do Contexto - ADICIONADO: mesa e setMesa
 interface CartContextType {
   items: CartItem[];
+  mesa: string | null;
+  setMesa: (mesa: string | null) => void;
   addToCart: (product: Omit<CartItem, 'quantity'>) => void;
   removeFromCart: (productId: string) => void;
   clearCart: () => void;
@@ -26,6 +28,8 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>([]);
+  // Estado para armazenar o identificador da Mesa
+  const [mesa, setMesa] = useState<string | null>(null);
 
   const addToCart = (product: Omit<CartItem, 'quantity'>) => {
     setItems((currentItems) => {
@@ -80,6 +84,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     <CartContext.Provider
       value={{
         items,
+        mesa,
+        setMesa,
         addToCart,
         removeFromCart,
         clearCart,

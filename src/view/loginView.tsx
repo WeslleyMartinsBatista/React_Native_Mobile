@@ -54,9 +54,12 @@ export default function LoginScreen() {
     navigation.navigate('homeView');
   };
 
-  const handleCreateAccount = () => {
+  const handleCreateAccount = (e?: React.MouseEvent | any) => {
+    if (e && e.preventDefault) {
+      e.preventDefault(); // Evita que a página recarregue na Web
+    }
     setInvalidField(null);
-    setActiveMessage('O cadastro será disponibilizado quando as contas estiverem conectadas.');
+    navigation.navigate('registerView');
   };
 
   return (

@@ -13,14 +13,20 @@ export default function Scanner({ onCodeRead, onClose }: ScannerProps) {
 
   // Aguardando a resposta do sistema sobre as permissões
   if (!permission) {
-    return <View style={styles.center}><Text>Carregando permissões...</Text></View>;
+    return (
+      <View style={styles.center}>
+        <Text>Carregando permissões...</Text>
+      </View>
+    );
   }
 
   // Se a permissão não foi concedida, exibe a tela de solicitação
   if (!permission.granted) {
     return (
       <View style={styles.center}>
-        <Text style={styles.message}>Precisamos da sua permissão para utilizar a câmera.</Text>
+        <Text style={styles.message}>
+          Precisamos da sua permissão para utilizar a câmera.
+        </Text>
         <Button onPress={requestPermission} title="Conceder Permissão" />
         <View style={{ marginTop: 10 }}>
           <Button onPress={onClose} title="Cancelar" color="#ff4444" />
@@ -40,12 +46,15 @@ export default function Scanner({ onCodeRead, onClose }: ScannerProps) {
         style={StyleSheet.absoluteFill}
         facing="back"
         onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+        barcodeScannerSettings={{
+          barcodeTypes: ['qr'], // Otimizado para focar apenas em QR Codes
+        }}
       />
-      
+
       <View style={styles.overlayContainer}>
         {/* Guia visual centralizada para o usuário posicionar o código */}
         <View style={styles.scanTarget} />
-        
+
         <View style={styles.buttonContainer}>
           <Button title="Fechar Câmera" onPress={onClose} color="#333" />
         </View>
@@ -82,9 +91,9 @@ const styles = StyleSheet.create({
     width: 250,
     height: 250,
     borderWidth: 2,
-    borderColor: '#00FF00',
+    borderColor: '#6344FF', // Ajustado para o roxo padrão do projeto
     backgroundColor: 'transparent',
-    borderRadius: 12,
+    borderRadius: 16,
   },
   buttonContainer: {
     position: 'absolute',
