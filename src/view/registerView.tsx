@@ -10,6 +10,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import {
   Flame,
@@ -17,6 +19,8 @@ import {
   User,
   Mail,
   LockKeyhole,
+  Eye,
+  EyeOff,
   MapPin,
   Building,
   Home,
@@ -44,8 +48,44 @@ export default function RegisterScreen({ navigation }: Props) {
     complemento: '',
   });
 
+  const [loadingCep, setLoadingCep] = useState(false);
+  // Estado para controlar se a senha está visível ou oculta
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleChange = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Função para buscar o endereço via API do ViaCEP
+  const handleCepChange = async (text: string) => {
+    const cleanCep = text.replace(/\D/g, '');
+    handleChange('cep', text);
+
+    if (cleanCep.length === 8) {
+      setLoadingCep(true);
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+        const data = await response.json();
+
+        if (data.erro) {
+          Alert.alert('CEP não encontrado', 'Verifique o número digitado.');
+          setLoadingCep(false);
+          return;
+        }
+
+        setFormData((prev) => ({
+          ...prev,
+          cidade: data.localidade || prev.cidade,
+          bairro: data.bairro || prev.bairro,
+          rua: data.logradouro || prev.rua,
+          complemento: data.complemento || prev.complemento,
+        }));
+      } catch (error) {
+        console.error('Erro ao buscar CEP:', error);
+      } finally {
+        setLoadingCep(false);
+      }
+    }
   };
 
   const handleRegister = (e?: any) => {
@@ -90,7 +130,7 @@ export default function RegisterScreen({ navigation }: Props) {
                 </TouchableOpacity>
               </View>
 
-              <Text style={styles.title}>Criar sua conta</Text>
+              <Text style={styles.title}>Registro de conta</Text>
               <Text style={styles.subtitle}>
                 Cadastre seus dados para realizar pedidos com mais facilidade.
               </Text>
@@ -107,6 +147,7 @@ export default function RegisterScreen({ navigation }: Props) {
                     style={styles.textInput}
                     placeholder="Digite seu nome"
                     placeholderTextColor="#a1a1aa"
+                    value={formData.nome}
                     onChangeText={(t) => handleChange('nome', t)}
                   />
                 </View>
@@ -123,12 +164,13 @@ export default function RegisterScreen({ navigation }: Props) {
                     placeholderTextColor="#a1a1aa"
                     keyboardType="email-address"
                     autoCapitalize="none"
+                    value={formData.email}
                     onChangeText={(t) => handleChange('email', t)}
                   />
                 </View>
               </View>
 
-              {/* Senha */}
+              {/* Senha com alternância de visibilidade */}
               <View style={styles.inputContainer}>
                 <Text style={styles.label}>Senha</Text>
                 <View style={styles.inputWrapper}>
@@ -137,9 +179,19 @@ export default function RegisterScreen({ navigation }: Props) {
                     style={styles.textInput}
                     placeholder="Crie uma senha"
                     placeholderTextColor="#a1a1aa"
-                    secureTextEntry
+                    secureTextEntry={!showPassword}
+                    value={formData.senha}
                     onChangeText={(t) => handleChange('senha', t)}
                   />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword((prev) => !prev)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                    {showPassword ? (
+                      <EyeOff size={20} color="#71717a" />
+                    ) : (
+                      <Eye size={20} color="#71717a" />
+                    )}
+                  </TouchableOpacity>
                 </View>
               </View>
 
@@ -154,8 +206,10 @@ export default function RegisterScreen({ navigation }: Props) {
                     placeholderTextColor="#a1a1aa"
                     keyboardType="numeric"
                     maxLength={9}
-                    onChangeText={(t) => handleChange('cep', t)}
+                    value={formData.cep}
+                    onChangeText={handleCepChange}
                   />
+                  {loadingCep && <ActivityIndicator size="small" color="#6344FF" />}
                 </View>
               </View>
 
@@ -169,6 +223,7 @@ export default function RegisterScreen({ navigation }: Props) {
                       style={styles.textInput}
                       placeholder="Sua cidade"
                       placeholderTextColor="#a1a1aa"
+                      value={formData.cidade}
                       onChangeText={(t) => handleChange('cidade', t)}
                     />
                   </View>
@@ -182,6 +237,7 @@ export default function RegisterScreen({ navigation }: Props) {
                       style={styles.textInput}
                       placeholder="Seu bairro"
                       placeholderTextColor="#a1a1aa"
+                      value={formData.bairro}
                       onChangeText={(t) => handleChange('bairro', t)}
                     />
                   </View>
@@ -197,6 +253,7 @@ export default function RegisterScreen({ navigation }: Props) {
                     style={styles.textInput}
                     placeholder="Nome da sua rua"
                     placeholderTextColor="#a1a1aa"
+                    value={formData.rua}
                     onChangeText={(t) => handleChange('rua', t)}
                   />
                 </View>
@@ -213,6 +270,7 @@ export default function RegisterScreen({ navigation }: Props) {
                       placeholder="123"
                       placeholderTextColor="#a1a1aa"
                       keyboardType="numeric"
+                      value={formData.numero}
                       onChangeText={(t) => handleChange('numero', t)}
                     />
                   </View>
@@ -226,6 +284,7 @@ export default function RegisterScreen({ navigation }: Props) {
                       style={styles.textInput}
                       placeholder="Apto, bloco..."
                       placeholderTextColor="#a1a1aa"
+                      value={formData.complemento}
                       onChangeText={(t) => handleChange('complemento', t)}
                     />
                   </View>
@@ -233,21 +292,18 @@ export default function RegisterScreen({ navigation }: Props) {
               </View>
             </View>
 
-            {/* Ações (Mesmo modelo da tela de login) */}
+            {/* Ações */}
             <View style={styles.actions}>
-              {/* 1. Concluir cadastro */}
               <TouchableOpacity style={styles.primaryButton} onPress={handleRegister}>
                 <UserCheck size={20} color="#ffffff" style={styles.buttonIcon} />
                 <Text style={styles.primaryButtonText}>Concluir cadastro</Text>
               </TouchableOpacity>
 
-              {/* 2. Efetuar login */}
               <TouchableOpacity style={styles.outlineButton} onPress={handleGoToLogin}>
                 <LogIn size={20} color="#6344FF" style={styles.buttonIcon} />
                 <Text style={styles.outlineButtonText}>Efetuar login</Text>
               </TouchableOpacity>
 
-              {/* 3. Continuar sem conta */}
               <TouchableOpacity style={styles.ghostButton} onPress={handleGuestAccess}>
                 <Compass size={20} color="#6344FF" style={styles.buttonIcon} />
                 <Text style={styles.ghostButtonText}>Continuar sem conta</Text>
