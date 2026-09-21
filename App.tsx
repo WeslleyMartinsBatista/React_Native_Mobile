@@ -21,7 +21,7 @@ export type RootStackParamList = {
   cardapioView: { category: string } | undefined;
   loginView: undefined;
   registerView: undefined;
-  Checkout: undefined;
+  Checkout: { orderType?: string } | undefined; 
   adminView: undefined;
   atendimentoView: undefined;
   cozinhaView: undefined;

@@ -12,7 +12,9 @@ import {
   Alert
 } from 'react-native';
 import { X } from 'lucide-react-native';
-import { useCart } from '../store/Cart'; // Importação do carrinho
+import { useCart } from '../store/Cart';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../App'; // Ajuste o caminho relativo até o App.tsx se necessário
 
 const COLORS = {
   overlayBg: 'rgba(26, 26, 26, 0.6)',
@@ -27,7 +29,9 @@ const COLORS = {
   textOverline: '#96908B',
 };
 
-export default function CheckoutScreen({ route, navigation }) {
+type Props = NativeStackScreenProps<RootStackParamList, 'Checkout'>;
+
+export default function CheckoutScreen({ route, navigation }: Props) {
   const orderType = route?.params?.orderType || 'local'; 
   const [paymentMethod, setPaymentMethod] = useState('pix'); 
   const [changeAmount, setChangeAmount] = useState('');
@@ -47,7 +51,7 @@ export default function CheckoutScreen({ route, navigation }) {
 
   const isButtonDisabled = paymentMethod === 'dinheiro' && changeAmount.trim() === '';
 
-  const renderPaymentOption = (id, label) => {
+  const renderPaymentOption = (id: string, label: string) => {
     const isSelected = paymentMethod === id;
     return (
       <TouchableOpacity key={id} style={[styles.radioCard, isSelected && styles.radioCardSelected]} onPress={() => setPaymentMethod(id)} activeOpacity={0.8}>
