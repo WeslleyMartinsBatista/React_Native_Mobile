@@ -10,8 +10,9 @@ import cardapioView from './src/view/cardapioView';
 import loginView from './src/view/loginView';
 import registerView from './src/view/registerView';
 import CheckoutScreen from './src/view/checkoutView';
-import AttendantDashboardScreen from './src/view/atendimentoView';
-import KitchenDisplayScreen from './src/view/cozinhaView';
+import atendimentoView from './src/view/atendimentoView';
+import cozinhaView from './src/view/cozinhaView';
+import adminView from './src/view/adminView';
 
 // Definição das rotas
 export type RootStackParamList = {
@@ -20,8 +21,9 @@ export type RootStackParamList = {
   loginView: undefined;
   registerView: undefined;
   Checkout: undefined;
-  AdminDashboard: undefined;
-  KitchenDisplay: undefined;
+  adminView: undefined;
+  atendimentoView: undefined;
+  cozinhaView: undefined;
 };
 
 // Configuração de Linking para mapear as URLs no navegador
@@ -34,8 +36,9 @@ const linking: LinkingOptions<RootStackParamList> = {
       registerView: 'registerView',
       cardapioView: 'cardapioView',
       Checkout: 'Checkout',
-      AdminDashboard: 'AdminDashboard',
-      KitchenDisplay: 'KitchenDisplay',
+      adminView: 'AdminView',
+      atendimentoView: 'atendimentoView',
+      cozinhaView: 'cozinhaView',
     },
   },
 };
@@ -54,8 +57,8 @@ export default function App() {
             <Stack.Screen name="loginView" component={loginView} />
             <Stack.Screen name="registerView" component={registerView} />
             <Stack.Screen name="Checkout" component={CheckoutScreen} />
-            <Stack.Screen name="AdminDashboard" component={AttendantDashboardScreen} />
-            <Stack.Screen name="KitchenDisplay" component={KitchenDisplayScreen} />
+            <Stack.Screen name="adminView" component={adminView} />
+            <Stack.Screen name="cozinhaView" component={cozinhaView} />
           </Stack.Navigator>
         </NavigationContainer>
       </CartProvider>
