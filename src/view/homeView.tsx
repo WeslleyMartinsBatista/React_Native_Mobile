@@ -29,6 +29,7 @@ import { SideMenu } from './sideMenu';
 type RootStackParamList = {
   homeView: undefined;
   cardapioView: { category: string };
+  loginView: undefined; // <-- Adicione esta linha
 };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'homeView'>;
@@ -297,13 +298,21 @@ export default function HomeScreen({ navigation }: Partial<Props>) {
         </View>
       </ScrollView>
 
-      {/* Componente do Menu Lateral adicionado */}
+      {/* Componente do Menu Lateral */}
       <SideMenu
         open={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
-        onNavigate={handleMenuNavigation}
-        onSignIn={handleSignIn}
-        onSignOut={() => setIsMenuOpen(false)}
+        onNavigate={(destination) => {
+          setIsMenuOpen(false);
+          // Adicione a lógica para as outras telas se necessário
+        }}
+        onSignIn={() => {
+          setIsMenuOpen(false);
+          navigation?.navigate('loginView');
+        }}
+        onSignOut={() => {
+          setIsMenuOpen(false);
+        }}
         user={null}
       />
     </SafeAreaView>

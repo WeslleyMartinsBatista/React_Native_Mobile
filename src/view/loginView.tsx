@@ -27,8 +27,9 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-const [activeMessage, setActiveMessage] = useState<string | null>(null);
-const [invalidField, setInvalidField] = useState<string | null>(null);
+  const [activeMessage, setActiveMessage] = useState<string | null>(null);
+  const [invalidField, setInvalidField] = useState<string | null>(null);
+  
 
   const handleLogin = () => {
     if (!email.trim()) {
@@ -50,11 +51,15 @@ const [invalidField, setInvalidField] = useState<string | null>(null);
   const handleGuestAccess = () => {
     setInvalidField(null);
     setActiveMessage('Modo visitante ativo. Você pode explorar o cardápio sem criar uma conta.');
+    navigation.navigate('homeView');
   };
 
-  const handleCreateAccount = () => {
+  const handleCreateAccount = (e?: React.MouseEvent | any) => {
+    if (e && e.preventDefault) {
+      e.preventDefault(); // Evita que a página recarregue na Web
+    }
     setInvalidField(null);
-    setActiveMessage('O cadastro será disponibilizado quando as contas estiverem conectadas.');
+    navigation.navigate('registerView');
   };
 
   return (
@@ -72,9 +77,9 @@ const [invalidField, setInvalidField] = useState<string | null>(null);
               <View style={styles.iconContainer}>
                 <Utensils size={36} color="#6344FF" />
               </View>
-              <Text style={styles.title}>Bem-vindo</Text>
+              <Text style={styles.title}>Login</Text>
               <Text style={styles.subtitle}>
-                Entre para guardar seus pedidos ou explore o cardápio como visitante.
+                Entre para guardar seu historico de compra ou fazer pedidos de casa.
               </Text>
             </View>
 
@@ -152,22 +157,25 @@ const [invalidField, setInvalidField] = useState<string | null>(null);
             ) : null}
 
             {/* Botões */}
-            <View style={styles.actions}>
-              <TouchableOpacity style={styles.primaryButton} onPress={handleLogin}>
-                <LogOut size={20} color="#ffffff" style={styles.buttonIcon} />
-                <Text style={styles.primaryButtonText}>Entrar</Text>
-              </TouchableOpacity>
+              <View style={styles.actions}>
+                {/* 1. Entrar */}
+                <TouchableOpacity style={styles.primaryButton} onPress={handleLogin}>
+                  <LogOut size={20} color="#ffffff" style={styles.buttonIcon} />
+                  <Text style={styles.primaryButtonText}>Entrar</Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity style={styles.outlineButton} onPress={handleGuestAccess}>
-                <Compass size={20} color="#6344FF" style={styles.buttonIcon} />
-                <Text style={styles.outlineButtonText}>Entrar sem login</Text>
-              </TouchableOpacity>
+                {/* 2. Criar minha conta */}
+                <TouchableOpacity style={styles.outlineButton} onPress={handleCreateAccount}>
+                  <UserPlus size={20} color="#6344FF" style={styles.buttonIcon} />
+                  <Text style={styles.outlineButtonText}>Criar minha conta</Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity style={styles.ghostButton} onPress={handleCreateAccount}>
-                <UserPlus size={20} color="#6344FF" style={styles.buttonIcon} />
-                <Text style={styles.ghostButtonText}>Criar minha conta</Text>
-              </TouchableOpacity>
-            </View>
+                {/* 3. Continuar sem login */}
+                <TouchableOpacity style={styles.ghostButton} onPress={handleGuestAccess}>
+                  <Compass size={20} color="#6344FF" style={styles.buttonIcon} />
+                  <Text style={styles.ghostButtonText}>Continuar sem login</Text>
+                </TouchableOpacity>
+              </View>
 
             {/* Rodapé de Privacidade */}
             <View style={styles.privacyCard}>

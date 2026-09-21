@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   View,
   Text,
@@ -7,146 +9,388 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   ScrollView,
 } from 'react-native';
-import { Flame, X } from 'lucide-react-native';
+import {
+  Flame,
+  X,
+  User,
+  Mail,
+  LockKeyhole,
+  MapPin,
+  Building,
+  Home,
+  Hash,
+  FileText,
+  UserCheck,
+  LogIn,
+  Compass,
+} from 'lucide-react-native';
 
-const COLORS = {
-  darkBg: '#121418',
-  cardBg: '#F7F4F0',
-  primary: '#C84325',
-  grayLight: '#EBE8E2',
-  border: '#D1CEC7',
-  textMain: '#1A1A1A',
-  textMuted: '#7A7571',
-};
+import { RootStackParamList } from '../../App';
 
-export default function RegisterScreen({ navigation }) {
+type Props = NativeStackScreenProps<RootStackParamList, 'registerView'>;
+
+export default function RegisterScreen({ navigation }: Props) {
   const [formData, setFormData] = useState({
-    nome: '', email: '', senha: '', cep: '', cidade: '', bairro: '', rua: '', numero: '', complemento: ''
+    nome: '',
+    email: '',
+    senha: '',
+    cep: '',
+    cidade: '',
+    bairro: '',
+    rua: '',
+    numero: '',
+    complemento: '',
   });
 
-  const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleChange = (field: keyof typeof formData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleRegister = (e?: any) => {
+    if (e && e.preventDefault) e.preventDefault();
+    console.log('Dados cadastrados:', formData);
+  };
+
+  const handleGoToLogin = (e?: any) => {
+    if (e && e.preventDefault) e.preventDefault();
+    navigation.replace('loginView');
+  };
+
+  const handleGuestAccess = (e?: any) => {
+    if (e && e.preventDefault) e.preventDefault();
+    navigation.navigate('homeView');
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView 
-        style={styles.keyboardView} 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <View style={styles.card}>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}>
           
-          {/* Cabeçalho */}
-          <View style={styles.header}>
-            <View style={styles.logoContainer}>
-              <View style={styles.logoIcon}>
-                <Flame color="#FFF" size={16} />
+          <View style={styles.card}>
+            {/* Header */}
+            <View style={styles.header}>
+              <View style={styles.topRow}>
+                <View style={styles.iconContainer}>
+                  <Flame size={32} color="#6344FF" />
+                </View>
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={(e) => {
+                    if (e && e.preventDefault) e.preventDefault();
+                    navigation.navigate('homeView');
+                  }}>
+                  <X size={20} color="#71717a" />
+                </TouchableOpacity>
               </View>
-              <Text style={styles.logoText}>Fogo & Fumaça</Text>
-            </View>
-            <TouchableOpacity style={styles.closeButton} onPress={() => navigation.navigate('Home')}>
-              <X color={COLORS.textMain} size={18} />
-            </TouchableOpacity>
-          </View>
 
-          {/* O formulário de registro é longo, precisa de ScrollView interno */}
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-            
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>Demonstração</Text>
+              <Text style={styles.title}>Criar sua conta</Text>
+              <Text style={styles.subtitle}>
+                Cadastre seus dados para realizar pedidos com mais facilidade.
+              </Text>
             </View>
-            <Text style={styles.title}>Criar sua conta</Text>
-            <Text style={styles.subtitle}>Cadastre seus dados para pedidos mais rápidos.</Text>
 
+            {/* Formulário */}
             <View style={styles.formGroup}>
-              <Text style={styles.label}>Nome completo</Text>
-              <TextInput style={styles.input} placeholder="Seu nome" placeholderTextColor={COLORS.textMuted} onChangeText={t => handleChange('nome', t)} />
-            </View>
-
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>E-mail</Text>
-              <TextInput style={styles.input} placeholder="voce@email.com" placeholderTextColor={COLORS.textMuted} keyboardType="email-address" autoCapitalize="none" onChangeText={t => handleChange('email', t)} />
-            </View>
-
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Senha</Text>
-              <TextInput style={styles.input} placeholder="Sua senha" placeholderTextColor={COLORS.textMuted} secureTextEntry onChangeText={t => handleChange('senha', t)} />
-            </View>
-
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>CEP</Text>
-              <TextInput style={styles.input} placeholder="00000-000" placeholderTextColor={COLORS.textMuted} keyboardType="numeric" maxLength={9} onChangeText={t => handleChange('cep', t)} />
-            </View>
-
-            <View style={styles.row}>
-              <View style={[styles.formGroup, { flex: 1, marginRight: 12 }]}>
-                <Text style={styles.label}>Cidade</Text>
-                <TextInput style={styles.input} placeholder="Sua cidade" placeholderTextColor={COLORS.textMuted} onChangeText={t => handleChange('cidade', t)} />
+              {/* Nome completo */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Nome completo</Text>
+                <View style={styles.inputWrapper}>
+                  <User size={20} color="#71717a" style={styles.fieldIcon} />
+                  <TextInput
+                    style={styles.textInput}
+                    placeholder="Digite seu nome"
+                    placeholderTextColor="#a1a1aa"
+                    onChangeText={(t) => handleChange('nome', t)}
+                  />
+                </View>
               </View>
-              <View style={[styles.formGroup, { flex: 1 }]}>
-                <Text style={styles.label}>Bairro</Text>
-                <TextInput style={styles.input} placeholder="Seu bairro" placeholderTextColor={COLORS.textMuted} onChangeText={t => handleChange('bairro', t)} />
+
+              {/* E-mail */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>E-mail</Text>
+                <View style={styles.inputWrapper}>
+                  <Mail size={20} color="#71717a" style={styles.fieldIcon} />
+                  <TextInput
+                    style={styles.textInput}
+                    placeholder="voce@email.com"
+                    placeholderTextColor="#a1a1aa"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    onChangeText={(t) => handleChange('email', t)}
+                  />
+                </View>
+              </View>
+
+              {/* Senha */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Senha</Text>
+                <View style={styles.inputWrapper}>
+                  <LockKeyhole size={20} color="#71717a" style={styles.fieldIcon} />
+                  <TextInput
+                    style={styles.textInput}
+                    placeholder="Crie uma senha"
+                    placeholderTextColor="#a1a1aa"
+                    secureTextEntry
+                    onChangeText={(t) => handleChange('senha', t)}
+                  />
+                </View>
+              </View>
+
+              {/* CEP */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>CEP</Text>
+                <View style={styles.inputWrapper}>
+                  <MapPin size={20} color="#71717a" style={styles.fieldIcon} />
+                  <TextInput
+                    style={styles.textInput}
+                    placeholder="00000-000"
+                    placeholderTextColor="#a1a1aa"
+                    keyboardType="numeric"
+                    maxLength={9}
+                    onChangeText={(t) => handleChange('cep', t)}
+                  />
+                </View>
+              </View>
+
+              {/* Cidade e Bairro */}
+              <View style={styles.row}>
+                <View style={[styles.inputContainer, { flex: 1 }]}>
+                  <Text style={styles.label}>Cidade</Text>
+                  <View style={styles.inputWrapper}>
+                    <Building size={18} color="#71717a" style={styles.fieldIcon} />
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder="Sua cidade"
+                      placeholderTextColor="#a1a1aa"
+                      onChangeText={(t) => handleChange('cidade', t)}
+                    />
+                  </View>
+                </View>
+
+                <View style={[styles.inputContainer, { flex: 1 }]}>
+                  <Text style={styles.label}>Bairro</Text>
+                  <View style={styles.inputWrapper}>
+                    <Home size={18} color="#71717a" style={styles.fieldIcon} />
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder="Seu bairro"
+                      placeholderTextColor="#a1a1aa"
+                      onChangeText={(t) => handleChange('bairro', t)}
+                    />
+                  </View>
+                </View>
+              </View>
+
+              {/* Rua */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Rua</Text>
+                <View style={styles.inputWrapper}>
+                  <Home size={20} color="#71717a" style={styles.fieldIcon} />
+                  <TextInput
+                    style={styles.textInput}
+                    placeholder="Nome da sua rua"
+                    placeholderTextColor="#a1a1aa"
+                    onChangeText={(t) => handleChange('rua', t)}
+                  />
+                </View>
+              </View>
+
+              {/* Número e Complemento */}
+              <View style={styles.row}>
+                <View style={[styles.inputContainer, { flex: 1 }]}>
+                  <Text style={styles.label}>Número</Text>
+                  <View style={styles.inputWrapper}>
+                    <Hash size={18} color="#71717a" style={styles.fieldIcon} />
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder="123"
+                      placeholderTextColor="#a1a1aa"
+                      keyboardType="numeric"
+                      onChangeText={(t) => handleChange('numero', t)}
+                    />
+                  </View>
+                </View>
+
+                <View style={[styles.inputContainer, { flex: 1 }]}>
+                  <Text style={styles.label}>Complemento</Text>
+                  <View style={styles.inputWrapper}>
+                    <FileText size={18} color="#71717a" style={styles.fieldIcon} />
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder="Apto, bloco..."
+                      placeholderTextColor="#a1a1aa"
+                      onChangeText={(t) => handleChange('complemento', t)}
+                    />
+                  </View>
+                </View>
               </View>
             </View>
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Rua</Text>
-              <TextInput style={styles.input} placeholder="Rua e número" placeholderTextColor={COLORS.textMuted} onChangeText={t => handleChange('rua', t)} />
-            </View>
+            {/* Ações (Mesmo modelo da tela de login) */}
+            <View style={styles.actions}>
+              {/* 1. Concluir cadastro */}
+              <TouchableOpacity style={styles.primaryButton} onPress={handleRegister}>
+                <UserCheck size={20} color="#ffffff" style={styles.buttonIcon} />
+                <Text style={styles.primaryButtonText}>Concluir cadastro</Text>
+              </TouchableOpacity>
 
-            <View style={styles.row}>
-              <View style={[styles.formGroup, { flex: 1, marginRight: 12 }]}>
-                <Text style={styles.label}>Número</Text>
-                <TextInput style={styles.input} placeholder="123" placeholderTextColor={COLORS.textMuted} keyboardType="numeric" onChangeText={t => handleChange('numero', t)} />
-              </View>
-              <View style={[styles.formGroup, { flex: 1 }]}>
-                <Text style={styles.label}>Complemento</Text>
-                <TextInput style={styles.input} placeholder="Apto, bloco..." placeholderTextColor={COLORS.textMuted} onChangeText={t => handleChange('complemento', t)} />
-              </View>
-            </View>
+              {/* 2. Efetuar login */}
+              <TouchableOpacity style={styles.outlineButton} onPress={handleGoToLogin}>
+                <LogIn size={20} color="#6344FF" style={styles.buttonIcon} />
+                <Text style={styles.outlineButtonText}>Efetuar login</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity style={styles.primaryButton} onPress={() => console.log('Cadastrar', formData)}>
-              <Text style={styles.primaryButtonText}>Criar conta</Text>
-            </TouchableOpacity>
-
-            <View style={styles.footer}>
-              <Text style={styles.footerText}>Já tem uma conta? </Text>
-              <TouchableOpacity onPress={() => navigation.replace('LoginScreen')}>
-                <Text style={styles.footerLink}>Entrar</Text>
+              {/* 3. Continuar sem conta */}
+              <TouchableOpacity style={styles.ghostButton} onPress={handleGuestAccess}>
+                <Compass size={20} color="#6344FF" style={styles.buttonIcon} />
+                <Text style={styles.ghostButtonText}>Continuar sem conta</Text>
               </TouchableOpacity>
             </View>
-
-          </ScrollView>
-        </View>
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: COLORS.darkBg },
-  keyboardView: { flex: 1, justifyContent: 'center', padding: 20 },
-  card: { backgroundColor: COLORS.cardBg, borderRadius: 24, maxHeight: '90%', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 20, elevation: 10 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 24, paddingBottom: 16 },
-  logoContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  logoIcon: { backgroundColor: COLORS.primary, padding: 6, borderRadius: 8 },
-  logoText: { fontSize: 16, fontWeight: '700', color: COLORS.textMain },
-  closeButton: { width: 32, height: 32, backgroundColor: COLORS.grayLight, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-  scrollContent: { paddingHorizontal: 24, paddingBottom: 24 },
-  badge: { alignSelf: 'flex-start', borderWidth: 1, borderColor: COLORS.border, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4, marginBottom: 12 },
-  badgeText: { color: COLORS.textMain, fontSize: 11, fontWeight: '600' },
-  title: { fontSize: 24, fontWeight: 'bold', color: COLORS.textMain, marginBottom: 8 },
-  subtitle: { fontSize: 14, color: COLORS.textMuted, marginBottom: 24 },
-  formGroup: { marginBottom: 16 },
-  row: { flexDirection: 'row' },
-  label: { fontSize: 12, fontWeight: '600', color: COLORS.textMain, marginBottom: 6 },
-  input: { backgroundColor: 'transparent', borderWidth: 1, borderColor: COLORS.border, borderRadius: 8, padding: 14, fontSize: 15, color: COLORS.textMain },
-  primaryButton: { backgroundColor: COLORS.primary, padding: 16, borderRadius: 8, alignItems: 'center', marginTop: 12 },
-  primaryButtonText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
-  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
-  footerText: { color: COLORS.textMuted, fontSize: 14 },
-  footerLink: { color: COLORS.primary, fontSize: 14, fontWeight: '700' },
+  container: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingVertical: 32,
+    justifyContent: 'center',
+  },
+  card: {
+    width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center',
+  },
+  header: {
+    marginBottom: 24,
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  iconContainer: {
+    height: 64,
+    width: 64,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    backgroundColor: '#EEECFF',
+  },
+  closeButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F4F4F5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#09090b',
+  },
+  subtitle: {
+    marginTop: 6,
+    fontSize: 14,
+    color: '#71717a',
+    lineHeight: 20,
+  },
+  formGroup: {
+    gap: 16,
+  },
+  row: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  inputContainer: {
+    gap: 6,
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#09090b',
+  },
+  inputWrapper: {
+    height: 52,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#e4e4e7',
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 14,
+  },
+  fieldIcon: {
+    marginRight: 10,
+  },
+  textInput: {
+    flex: 1,
+    height: '100%',
+    fontSize: 14,
+    color: '#09090b',
+  },
+  actions: {
+    marginTop: 28,
+    gap: 12,
+  },
+  buttonIcon: {
+    marginRight: 8,
+  },
+  primaryButton: {
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: '#6344FF',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  primaryButtonText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  outlineButton: {
+    height: 56,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#D2C9FF',
+    backgroundColor: '#F8F7FF',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  outlineButtonText: {
+    color: '#6344FF',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  ghostButton: {
+    height: 48,
+    borderRadius: 16,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  ghostButtonText: {
+    color: '#6344FF',
+    fontWeight: '600',
+    fontSize: 15,
+  },
 });
