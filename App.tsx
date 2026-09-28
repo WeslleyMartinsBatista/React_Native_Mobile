@@ -2,15 +2,14 @@ import React from 'react';
 import { NavigationContainer, LinkingOptions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-// Corrigido: importação por omissão (default import) sem as chaves {}
 import { AuthProvider } from './src/controller/AuthController';
 import { CartProvider } from './src/store/Cart';
 
 import homeView from './src/view/homeView';
 import cardapioView from './src/view/cardapioView';
-import loginView from './src/view/loginView';
+import LoginView from './src/view/loginView'; // Importação do LoginScreen
 import registerView from './src/view/registerView';
-import CheckoutScreen from './src/view/checkoutView';
+import checkoutView from './src/view/checkoutView';
 import atendimentoView from './src/view/atendimentoView';
 import cozinhaView from './src/view/cozinhaView';
 import adminView from './src/view/adminView';
@@ -34,6 +33,8 @@ const linking: LinkingOptions<RootStackParamList> = {
     screens: {
       homeView: '',
       cardapioView: 'cardapioView',
+      loginView: 'login',
+      registerView: 'register',
       Checkout: 'checkout',
       adminView: 'adminView',
       atendimentoView: 'atendimentoView',
@@ -52,9 +53,9 @@ export default function App() {
           <Stack.Navigator initialRouteName="homeView" screenOptions={{ headerShown: false }}>
             <Stack.Screen name="homeView" component={homeView} />
             <Stack.Screen name="cardapioView" component={cardapioView} />
-            <Stack.Screen name="loginView" component={loginView} />
+            <Stack.Screen name="loginView" component={LoginView} />
             <Stack.Screen name="registerView" component={registerView} />
-            <Stack.Screen name="Checkout" component={CheckoutScreen} />
+            <Stack.Screen name="Checkout" component={checkoutView} />
             <Stack.Screen name="adminView" component={adminView} />
             <Stack.Screen name="atendimentoView" component={atendimentoView} />
             <Stack.Screen name="cozinhaView" component={cozinhaView} />
