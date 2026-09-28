@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   useWindowDimensions // <-- Hook importado para responsividade
 } from 'react-native';
 import { ChefHat, Clock, Flame } from 'lucide-react-native';
