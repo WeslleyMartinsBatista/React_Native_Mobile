@@ -34,8 +34,8 @@ const linking: LinkingOptions<RootStackParamList> = {
     screens: {
       homeView: '',
       cardapioView: 'cardapioView',
-      Checkout: 'Checkout',
-      adminView: 'AdminView',
+      Checkout: 'checkout',
+      adminView: 'adminView',
       atendimentoView: 'atendimentoView',
       cozinhaView: 'cozinhaView',
     },
