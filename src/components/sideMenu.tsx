@@ -1,282 +1,206 @@
-import React, { useEffect, useRef } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  Animated,
-  Dimensions,
-  Easing,
-  StatusBar,
-} from 'react-native';
-import {
-  X,
-  History,
-  Heart,
-  User,
-  LogIn,
-  LogOut,
-  ChevronRight,
-} from 'lucide-react-native';
-
-// Obtém a largura da tela para calcular a largura do menu (ex: 75% da tela)
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const MENU_WIDTH = SCREEN_WIDTH * 0.75; // Menu ocupará 75% da largura da tela
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { User, LogOut, LogIn, Utensils, ShoppingBag, Settings, Home } from 'lucide-react-native';
+import { useAuth } from '../controller/AuthController'; // Ajuste o caminho conforme a estrutura de pastas do projeto
 
 interface SideMenuProps {
   open: boolean;
   onClose: () => void;
-  onNavigate: (destination: 'history' | 'favorites' | 'account') => void;
+  onNavigate?: (screenName: string) => void;
   onSignIn: () => void;
-  onSignOut: () => void;
-  user?: { name: string; email: string } | null;
 }
 
-export function SideMenu({
-  open,
-  onClose,
-  onNavigate,
-  onSignIn,
-  onSignOut,
-  user,
-}: SideMenuProps) {
-  // 1. Criar o valor da animação (começa fora da tela à esquerda, -MENU_WIDTH)
-  const translateX = useRef(new Animated.Value(-MENU_WIDTH)).current;
-  // Valor para o fundo preto transparente (começa em 0, transparente)
-  const overlayOpacity = useRef(new Animated.Value(0)).current;
+export function SideMenu({ open, onClose, onNavigate, onSignIn }: SideMenuProps) {
+  const { user, logout } = useAuth() as {
+    user: { nome?: string; name?: string; email?: string } | null;
+    logout: () => void;
+  }
 
-  // 2. Controlar a animação quando a prop 'open' mudar
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(translateX, {
-        toValue: open ? 0 : -MENU_WIDTH, // Vai para 0 (aparece) ou -MENU_WIDTH (some)
-        duration: 300,
-        easing: Easing.out(Easing.quad), // Suavidade na entrada/saída
-        useNativeDriver: true, // Importante para performance
-      }),
-      Animated.timing(overlayOpacity, {
-        toValue: open ? 1 : 0, // Opacidade total ou transparente
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [open]);
+  if (!open) return null;
 
-  // Se o menu estiver fechado e a animação já tiver acabado, não renderizar o overlay
-  // Mas para garantir que a animação de saída ocorra, só verificamos o 'open' para renderizar
-  // os componentes. Para fechar, a animação move o menu para fora antes de sumir.
+  const handleNavigation = (screenName: string) => {
+    onClose();
+    if (onNavigate) {
+      onNavigate(screenName);
+    }
+  };
 
-  // Renderizamos sempre, mas usamos pointerEvents para desativar o toque no overlay
-  // quando estiver fechado, prevenindo que o overlay invisível bloqueie a Home.
   return (
-    <View style={styles.root} pointerEvents={open ? 'auto' : 'none'}>
-      {/* 3. O Fundo escurecido e clicável */}
-      <Animated.View
-        style={[
-          styles.overlay,
-          {
-            opacity: overlayOpacity, // Controlado pela animação
-          },
-        ]}>
-        {/* Clicar no fundo fecha o menu */}
-        <Pressable style={styles.pressableOverlay} onPress={onClose} />
-      </Animated.View>
-
-      {/* 4. O Painel  SafeAreaView, do Menu Animado */}
-      <Animated.View
-        style={[
-          styles.menuContainer,
-          {
-            transform: [{ translateX }], // A propriedade mágica da animação
-          },
-        ]}>
-        <SafeAreaView style={styles.safeArea}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Menu</Text>
-            <Pressable style={styles.closeButton} onPress={onClose}>
-              <X size={22} color="#09090b" />
-            </Pressable>
-          </View>
-
-          <View style={styles.userSection}>
+    <View style={styles.overlay}>
+      
+      {/* 1º O MENU: Renderizado primeiro, portanto fica fixo na esquerda */}
+      <View style={styles.menuContainer}>
+        <View style={styles.topSection}>
+          {/* Cabeçalho do Menu: Exibe Nome/E-mail se logado ou o botão "Entrar na conta" */}
+          <View style={styles.userHeader}>
             {user ? (
-              <View>
-                <Text style={styles.userName}>{user.name}</Text>
-                <Text style={styles.userEmail}>{user.email}</Text>
+              <View style={styles.userInfoContainer}>
+                <View style={styles.avatarCircle}>
+                  <User size={24} color="#6344FF" />
+                </View>
+                <View style={styles.userDetails}>
+                  <Text style={styles.userName} numberOfLines={1}>
+                    {user.nome || user.name || 'Usuário'}
+                  </Text>
+                  <Text style={styles.userEmail} numberOfLines={1}>
+                    {user.email}
+                  </Text>
+                </View>
               </View>
             ) : (
-              <Pressable style={styles.loginButton} onPress={onSignIn}>
-                <LogIn size={20} color="#ffffff" />
-                <Text style={styles.loginButtonText}>Entrar na conta</Text>
-              </Pressable>
+              <TouchableOpacity
+                style={styles.signInButton}
+                onPress={() => {
+                  onClose();
+                  onSignIn();
+                }}>
+                <LogIn size={20} color="#6344FF" />
+                <Text style={styles.signInText}>Entrar na conta</Text>
+              </TouchableOpacity>
             )}
           </View>
 
-          <View style={styles.menuItems}>
-            <Pressable
-              style={styles.menuItem}
-              onPress={() => onNavigate('history')}>
-              <View style={styles.menuItemLeft}>
-                <History size={20} color="#71717a" />
-                <Text style={styles.menuItemText}>Histórico de Pedidos</Text>
-              </View>
-              <ChevronRight size={18} color="#a1a1aa" />
-            </Pressable>
+          {/* Opções de Navegação */}
+          <View style={styles.navigationSection}>
+            <TouchableOpacity
+              style={styles.navItem}
+              onPress={() => handleNavigation('homeView')}>
+              <Home size={20} color="#71717a" />
+              <Text style={styles.navText}>Início</Text>
+            </TouchableOpacity>
 
-            <Pressable
-              style={styles.menuItem}
-              onPress={() => onNavigate('favorites')}>
-              <View style={styles.menuItemLeft}>
-                <Heart size={20} color="#71717a" />
-                <Text style={styles.menuItemText}>Meus Favoritos</Text>
-              </View>
-              <ChevronRight size={18} color="#a1a1aa" />
-            </Pressable>
+            <TouchableOpacity
+              style={styles.navItem}
+              onPress={() => handleNavigation('cardapioView')}>
+              <Utensils size={20} color="#71717a" />
+              <Text style={styles.navText}>Cardápio</Text>
+            </TouchableOpacity>
 
-            <Pressable
-              style={styles.menuItem}
-              onPress={() => onNavigate('account')}>
-              <View style={styles.menuItemLeft}>
-                <User size={20} color="#71717a" />
-                <Text style={styles.menuItemText}>Minha Conta</Text>
-              </View>
-              <ChevronRight size={18} color="#a1a1aa" />
-            </Pressable>
+            <TouchableOpacity
+              style={styles.navItem}
+              onPress={() => handleNavigation('Checkout')}>
+              <ShoppingBag size={20} color="#71717a" />
+              <Text style={styles.navText}>Meu Pedido</Text>
+            </TouchableOpacity>
           </View>
+        </View>
 
+        {/* Rodapé do Menu */}
+        <View style={styles.bottomSection}>
           {user && (
-            <Pressable style={styles.signOutButton} onPress={onSignOut}>
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={() => {
+                logout();
+                onClose();
+              }}>
               <LogOut size={20} color="#ef4444" />
-              <Text style={styles.signOutText}>Sair da conta</Text>
-            </Pressable>
+              <Text style={styles.logoutText}>Sair da conta</Text>
+            </TouchableOpacity>
           )}
-        </SafeAreaView>
-      </Animated.View>
+        </View>
+      </View>
+
+      {/* 2º O FUNDO ESCURO: Renderizado depois, preenchendo o restante da tela na direita */}
+      <TouchableOpacity style={styles.backdrop} onPress={onClose} activeOpacity={1} />
+      
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // Root view que cobre toda a tela para conter o overlay e o menu
-  root: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    // Opcional: Garante que fique acima de tudo
-    zIndex: 1000,
-    // Corrigir SafeAreaView em Android com StatusBar
-    marginTop: StatusBar.currentHeight,
-  },
-  // Fundo escuro transparente que ocupa a tela toda
   overlay: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-  },
-  // Área clicável do overlay para fechar
-  pressableOverlay: {
-    flex: 1,
-  },
-  // O painel do menu em si, animado
-  menuContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: MENU_WIDTH, // Definido anteriormente (ex: 75%)
-    height: '100%',
-    backgroundColor: '#ffffff',
-    elevation: 8, // Sombra no Android
-    shadowColor: '#000', // Sombra no iOS
-    shadowOffset: { width: 2, height: 0 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 10, // Ajuste para SafeAreaView
-  },
-  header: {
+    zIndex: 1000,
     flexDirection: 'row',
-    alignItems: 'center',
+  },
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  menuContainer: {
+    width: 280,
+    backgroundColor: '#ffffff',
+    height: '100%',
+    padding: 20,
     justifyContent: 'space-between',
+  },
+  topSection: {
+    flex: 1,
+  },
+  userHeader: {
     paddingBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f4f4f5',
+    borderBottomColor: '#e4e4e7',
+    marginBottom: 20,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#09090b',
+  userInfoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
-  closeButton: {
-    padding: 8,
+  avatarCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#EEECFF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  userSection: {
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f4f4f5',
+  userDetails: {
+    flex: 1,
   },
   userName: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
     color: '#09090b',
   },
   userEmail: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#71717a',
     marginTop: 2,
   },
-  loginButton: {
+  signInButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#6344FF',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
+    gap: 10,
+    paddingVertical: 10,
+  },
+  signInText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#6344FF',
+  },
+  navigationSection: {
     gap: 8,
   },
-  loginButtonText: {
-    color: '#ffffff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  menuItems: {
-    marginTop: 10,
-    gap: 4,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#fafafa',
-  },
-  menuItemLeft: {
+  navItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 8,
   },
-  menuItemText: {
+  navText: {
     fontSize: 15,
-    color: '#27272a',
     fontWeight: '500',
+    color: '#27272a',
   },
-  signOutButton: {
+  bottomSection: {
+    borderTopWidth: 1,
+    borderTopColor: '#e4e4e7',
+    paddingTop: 12,
+  },
+  logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginTop: 'auto',
-    marginBottom: 30,
+    gap: 10,
     paddingVertical: 12,
   },
-  signOutText: {
-    color: '#ef4444',
+  logoutText: {
     fontSize: 15,
     fontWeight: '600',
+    color: '#ef4444',
   },
 });

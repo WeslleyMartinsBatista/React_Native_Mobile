@@ -301,8 +301,6 @@ export default function HomeScreen({ navigation, route }: Props) {
           setIsMenuOpen(false);
           navigation.navigate('loginView');
         }}
-        onSignOut={() => setIsMenuOpen(false)}
-        user={null}
       />
     </SafeAreaView>
   );

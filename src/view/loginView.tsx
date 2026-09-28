@@ -24,10 +24,13 @@ import {
   Info,
 } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
-import { MockDatabase } from '../database/mockDatabase'; // Ajuste o caminho conforme sua estrutura
+import { useAuth } from '../controller/AuthController'; // 1. Importe o hook do AuthController
 
 export default function LoginScreen() {
   const navigation = useNavigation<any>();
+  const { handleLogin: authLogin } = useAuth() as {
+    handleLogin: (emailInput: string, passwordInput: string) => Promise<any>;
+  }; // 2. Extraia o handleLogin do AuthControllerw
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -54,7 +57,8 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const response = await MockDatabase.login(email, password);
+      // 3. Invoque a função do contexto para que o usuário seja armazenado no estado global
+      const response = await authLogin(email, password);
 
       if (response.success && response.user) {
         const userRole = response.user.role;
