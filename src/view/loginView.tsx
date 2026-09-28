@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import {
   Utensils,
@@ -22,16 +23,23 @@ import {
   ShieldCheck,
   Info,
 } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../controller/AuthController'; // 1. Importe o hook do AuthController
 
 export default function LoginScreen() {
+  const navigation = useNavigation<any>();
+  const { handleLogin: authLogin } = useAuth() as {
+    handleLogin: (emailInput: string, passwordInput: string) => Promise<any>;
+  }; // 2. Extraia o handleLogin do AuthControllerw
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [activeMessage, setActiveMessage] = useState<string | null>(null);
   const [invalidField, setInvalidField] = useState<string | null>(null);
-  
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email.trim()) {
       setInvalidField('email');
       setActiveMessage('Informe seu e-mail para entrar.');
@@ -45,18 +53,41 @@ export default function LoginScreen() {
     }
 
     setInvalidField(null);
-    setActiveMessage('O login com conta será ativado quando o acesso estiver conectado.');
+    setActiveMessage(null);
+    setLoading(true);
+
+    try {
+      // 3. Invoque a função do contexto para que o usuário seja armazenado no estado global
+      const response = await authLogin(email, password);
+
+      if (response.success && response.user) {
+        const userRole = response.user.role;
+
+        if (userRole === 'cozinha') {
+          navigation.replace('cozinhaView');
+        } else if (userRole === 'admin') {
+          navigation.replace('atendimentoView');
+        } else {
+          navigation.replace('homeView');
+        }
+      } else {
+        setActiveMessage(response.message || 'E-mail ou senha incorretos.');
+      }
+    } catch (error) {
+      setActiveMessage('Erro ao tentar efetuar login. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGuestAccess = () => {
     setInvalidField(null);
-    setActiveMessage('Modo visitante ativo. Você pode explorar o cardápio sem criar uma conta.');
     navigation.navigate('homeView');
   };
 
-  const handleCreateAccount = (e?: React.MouseEvent | any) => {
+  const handleCreateAccount = (e?: any) => {
     if (e && e.preventDefault) {
-      e.preventDefault(); // Evita que a página recarregue na Web
+      e.preventDefault();
     }
     setInvalidField(null);
     navigation.navigate('registerView');
@@ -79,7 +110,7 @@ export default function LoginScreen() {
               </View>
               <Text style={styles.title}>Login</Text>
               <Text style={styles.subtitle}>
-                Entre para guardar seu historico de compra ou fazer pedidos de casa.
+                Entre para guardar seu histórico de compra ou fazer pedidos de casa.
               </Text>
             </View>
 
@@ -98,6 +129,7 @@ export default function LoginScreen() {
                     autoCapitalize="none"
                     autoComplete="email"
                     keyboardType="email-address"
+                    editable={!loading}
                     onChangeText={(value) => {
                       setEmail(value);
                       setInvalidField(null);
@@ -122,6 +154,7 @@ export default function LoginScreen() {
                   <LockKeyhole size={20} color="#71717a" style={styles.fieldIcon} />
                   <TextInput
                     accessibilityLabel="Senha"
+                    editable={!loading}
                     onChangeText={(value) => {
                       setPassword(value);
                       setInvalidField(null);
@@ -148,7 +181,7 @@ export default function LoginScreen() {
               </View>
             </View>
 
-            {/* Mensagem de Alerta */}
+            {/* Alerta */}
             {activeMessage ? (
               <View style={styles.alertBox}>
                 <Info size={18} color="#6344FF" />
@@ -157,27 +190,39 @@ export default function LoginScreen() {
             ) : null}
 
             {/* Botões */}
-              <View style={styles.actions}>
-                {/* 1. Entrar */}
-                <TouchableOpacity style={styles.primaryButton} onPress={handleLogin}>
-                  <LogOut size={20} color="#ffffff" style={styles.buttonIcon} />
-                  <Text style={styles.primaryButtonText}>Entrar</Text>
-                </TouchableOpacity>
+            <View style={styles.actions}>
+              <TouchableOpacity
+                style={[styles.primaryButton, loading && styles.disabledButton]}
+                onPress={handleLogin}
+                disabled={loading}>
+                {loading ? (
+                  <ActivityIndicator color="#ffffff" />
+                ) : (
+                  <>
+                    <LogOut size={20} color="#ffffff" style={styles.buttonIcon} />
+                    <Text style={styles.primaryButtonText}>Entrar</Text>
+                  </>
+                )}
+              </TouchableOpacity>
 
-                {/* 2. Criar minha conta */}
-                <TouchableOpacity style={styles.outlineButton} onPress={handleCreateAccount}>
-                  <UserPlus size={20} color="#6344FF" style={styles.buttonIcon} />
-                  <Text style={styles.outlineButtonText}>Criar minha conta</Text>
-                </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.outlineButton}
+                onPress={handleCreateAccount}
+                disabled={loading}>
+                <UserPlus size={20} color="#6344FF" style={styles.buttonIcon} />
+                <Text style={styles.outlineButtonText}>Criar minha conta</Text>
+              </TouchableOpacity>
 
-                {/* 3. Continuar sem login */}
-                <TouchableOpacity style={styles.ghostButton} onPress={handleGuestAccess}>
-                  <Compass size={20} color="#6344FF" style={styles.buttonIcon} />
-                  <Text style={styles.ghostButtonText}>Continuar sem login</Text>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity
+                style={styles.ghostButton}
+                onPress={handleGuestAccess}
+                disabled={loading}>
+                <Compass size={20} color="#6344FF" style={styles.buttonIcon} />
+                <Text style={styles.ghostButtonText}>Continuar sem login</Text>
+              </TouchableOpacity>
+            </View>
 
-            {/* Rodapé de Privacidade */}
+            {/* Privacidade */}
             <View style={styles.privacyCard}>
               <View style={styles.privacyIconBg}>
                 <ShieldCheck size={18} color="#71717a" />
@@ -303,6 +348,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  disabledButton: {
+    opacity: 0.7,
   },
   primaryButtonText: {
     color: '#ffffff',
