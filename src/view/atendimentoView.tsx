@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,11 +6,11 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
-  useWindowDimensions // <-- Hook importado para responsividade
+  ActivityIndicator,
+  useWindowDimensions
 } from 'react-native';
 import { 
   Flame, 
-  LogOut, 
   Clock, 
   BellRing, 
   Truck, 
@@ -36,45 +36,101 @@ const COLORS = {
   statusChamado: '#C62828',
 };
 
+// Interfaces para tipagem dos dados dinâmicos
+export interface TableData {
+  id: string;
+  number: string;
+  status: 'Livre' | 'Ocupada' | 'Aguardando' | 'Chamar garçom';
+}
+
+export interface ActiveCall {
+  id: string;
+  title: string;
+  action: string;
+  time: string;
+}
+
+export interface OrderData {
+  id: string;
+  table: string;
+  items: string;
+  status: 'Na fila' | 'Em preparo' | 'Completo';
+  type: 'Local' | 'Delivery';
+}
+
 export default function AttendantDashboardScreen({ navigation }: any) {
-  // ==========================================
-  // RESPONSIVIDADE EM TEMPO REAL
-  // ==========================================
   const { width } = useWindowDimensions();
   const isLargeScreen = width > 768;
   const styles = useMemo(() => getStyles(isLargeScreen), [isLargeScreen]);
 
-  // Mock Data
-  const tables = [
-    { id: '1', number: '01', status: 'Livre', color: COLORS.statusLivre },
-    { id: '2', number: '02', status: 'Ocupada', color: COLORS.statusOcupada },
-    { id: '3', number: '03', status: 'Aguardando', color: COLORS.statusAguardando },
-    { id: '4', number: '04', status: 'Ocupada', color: COLORS.statusOcupada },
-    { id: '5', number: '05', status: 'Livre', color: COLORS.statusLivre },
-    { id: '6', number: '06', status: 'Chamar garçom', color: COLORS.statusChamado },
-    { id: '7', number: '07', status: 'Ocupada', color: COLORS.statusOcupada },
-    { id: '8', number: '08', status: 'Livre', color: COLORS.statusLivre },
-  ];
+  // ==========================================
+  // ESTADOS DINÂMICOS DA APLICAÇÃO
+  // ==========================================
+  const [attendantName, setAttendantName] = useState<string>('Atendente');
+  const [tables, setTables] = useState<TableData[]>([]);
+  const [activeCalls, setActiveCalls] = useState<ActiveCall[]>([]);
+  const [orders, setOrders] = useState<OrderData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const activeCalls = [
-    { id: '1', title: 'Mesa 06', action: 'Solicitou atendimento', time: 'há 1 min' },
-    { id: '2', title: 'Mesa 03', action: 'Pediu a conta', time: 'há 4 min' },
-  ];
+  // Mapeamento de cores de status para as mesas
+  const getTableColor = (status: TableData['status']) => {
+    switch (status) {
+      case 'Ocupada': return COLORS.statusOcupada;
+      case 'Aguardando': return COLORS.statusAguardando;
+      case 'Chamar garçom': return COLORS.statusChamado;
+      default: return COLORS.statusLivre;
+    }
+  };
 
-  const orders = [
-    { id: '184', table: 'Mesa 06', items: '2x Picanha, 1x pão de alho', status: 'Na fila', type: 'Local' },
-    { id: '187', table: 'Mesa 02', items: '1x Burger brasa, 1x batata', status: 'Em preparo', type: 'Local' },
-    { id: 'D-218', table: 'Marina Souza', items: '2x Burger brasa, 1x refrigerante', status: 'Na fila', type: 'Delivery' },
-    { id: 'D-217', table: 'Rafael Lima', items: '1x Costela, 2x arroz biro-biro', status: 'Completo', type: 'Delivery' },
-  ];
+  // ==========================================
+  // BUSCA E SINCRONIZAÇÃO DE DADOS
+  // ==========================================
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        setLoading(true);
+        // COLOQUE AQUI A CHAMADA PARA A SUA API / WEBSOCKET / FIREBASE
+        // Exemplo de integração:
+        // const response = await api.get('/atendimento/dashboard');
+        // setTables(response.data.tables);
+        // setActiveCalls(response.data.calls);
+        // setOrders(response.data.orders);
+        
+      } catch (error) {
+        console.error('Erro ao carregar dados do painel:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDashboardData();
+  }, []);
+
+  // Cálculo dinâmico dos indicadores
+  const kpis = useMemo(() => {
+    const openOrders = orders.filter(o => o.status !== 'Completo').length;
+    const callsCount = activeCalls.length;
+    const deliveryToday = orders.filter(o => o.type === 'Delivery').length;
+
+    return { openOrders, callsCount, deliveryToday };
+  }, [orders, activeCalls]);
+
+  // Ações dos botões dos pedidos
+  const handleForwardToKitchen = (orderId: string) => {
+    setOrders(prev =>
+      prev.map(o => (o.id === orderId ? { ...o, status: 'Em preparo' } : o))
+    );
+  };
+
+  const handleCallCourier = (orderId: string) => {
+    // Lógica para acionar serviço de entrega/motoboy
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
-        {/* ==========================================
-            CABEÇALHO
-        ========================================== */}
+        {/* CABEÇALHO */}
         <View style={styles.header}>
           <View>
             <View style={styles.logoRow}>
@@ -82,7 +138,7 @@ export default function AttendantDashboardScreen({ navigation }: any) {
               <Text style={styles.logoText}>Fogo & Fumaça</Text>
               <View style={styles.badge}><Text style={styles.badgeText}>Modo operação</Text></View>
             </View>
-            <Text style={styles.greetingTitle}>Bom turno, Camila.</Text>
+            <Text style={styles.greetingTitle}>Bom turno, {attendantName}.</Text>
             <Text style={styles.greetingSubtitle}>Visão geral do salão e dos pedidos.</Text>
           </View>
           
@@ -91,162 +147,182 @@ export default function AttendantDashboardScreen({ navigation }: any) {
           </TouchableOpacity>
         </View>
 
-        {/* ==========================================
-            LAYOUT DINÂMICO: INDICADORES E CENTRAL
-        ========================================== */}
-        <View style={styles.topSectionRow}>
-          
-          {/* COLUNA ESQUERDA: Cards Empilhados */}
-          <View style={styles.kpiColumn}>
-            <View style={styles.kpiCard}>
-              <View style={styles.kpiHeader}>
-                <Text style={styles.kpiTitle}>Pedidos em aberto</Text>
-                <Clock color={COLORS.primary} size={18} />
-              </View>
-              <Text style={styles.kpiValue}>12</Text>
-              <Text style={styles.kpiSub}>3 aguardando despacho</Text>
-            </View>
-
-            <View style={styles.kpiCard}>
-              <View style={styles.kpiHeader}>
-                <Text style={styles.kpiTitle}>Chamados ativos</Text>
-                <BellRing color={COLORS.primary} size={18} />
-              </View>
-              <Text style={styles.kpiValue}>2</Text>
-              <Text style={styles.kpiSub}>Mesa 06 há 1 minuto</Text>
-            </View>
-
-            <View style={styles.kpiCard}>
-              <View style={styles.kpiHeader}>
-                <Text style={styles.kpiTitle}>Delivery hoje</Text>
-                <Truck color={COLORS.primary} size={18} />
-              </View>
-              <Text style={styles.kpiValue}>08</Text>
-              <Text style={styles.kpiSub}>2 saem nos próximos 15 min</Text>
-            </View>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={COLORS.primary} />
+            <Text style={styles.loadingText}>Atualizando dados do salão...</Text>
           </View>
-
-          {/* COLUNA DIREITA: Central de Atenção */}
-          <View style={styles.attentionPanel}>
-            <View style={styles.attentionHeader}>
-              <View>
-                <Text style={styles.attentionOverline}>Central de atenção</Text>
-                <Text style={styles.attentionTitle}>Chamados agora</Text>
-              </View>
-              <BellRing color={COLORS.primary} size={20} />
-            </View>
-
-            <View style={styles.attentionList}>
-              {activeCalls.map((call) => (
-                <View key={call.id} style={styles.attentionCard}>
-                  <View style={styles.attentionCardHeader}>
-                    <Text style={styles.attentionCardTitle}>{call.title}</Text>
-                    <Text style={styles.attentionCardTime}>{call.time}</Text>
+        ) : (
+          <>
+            {/* INDICADORES E CENTRAL */}
+            <View style={styles.topSectionRow}>
+              
+              {/* KPIs */}
+              <View style={styles.kpiColumn}>
+                <View style={styles.kpiCard}>
+                  <View style={styles.kpiHeader}>
+                    <Text style={styles.kpiTitle}>Pedidos em aberto</Text>
+                    <Clock color={COLORS.primary} size={18} />
                   </View>
-                  <Text style={styles.attentionCardAction}>{call.action}</Text>
+                  <Text style={styles.kpiValue}>{kpis.openOrders}</Text>
+                  <Text style={styles.kpiSub}>Em processamento no salão</Text>
                 </View>
-              ))}
-            </View>
 
-            <TouchableOpacity style={styles.attentionButton}>
-              <MapPin color={COLORS.textMain} size={16} />
-              <Text style={styles.attentionButtonText}>Abrir rota de delivery</Text>
-            </TouchableOpacity>
-          </View>
-
-        </View>
-
-        {/* ==========================================
-            MAPA DE MESAS
-        ========================================== */}
-        <View style={styles.fullWidthSection}>
-          <View style={styles.sectionHeader}>
-            <View>
-              <Text style={styles.sectionTitle}>Mapa de mesas</Text>
-              <Text style={styles.sectionSubtitle}>Toque para abrir a comanda.</Text>
-            </View>
-            <Text style={styles.sectionCount}>8 mesas</Text>
-          </View>
-
-          <View style={styles.tablesGrid}>
-            {tables.map((table) => (
-              <TouchableOpacity key={table.id} style={styles.tableCard} activeOpacity={0.7}>
-                <View style={[styles.tableDot, { backgroundColor: table.color }]} />
-                <Text style={styles.tableNumber}>Mesa {table.number}</Text>
-                <Text style={styles.tableStatus}>{table.status}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* Legenda responsiva */}
-          <View style={styles.legendRow}>
-            <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: COLORS.statusOcupada }]} /><Text style={styles.legendText}>Ocupada</Text></View>
-            <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: COLORS.statusAguardando }]} /><Text style={styles.legendText}>Aguardando</Text></View>
-            <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: COLORS.statusChamado }]} /><Text style={styles.legendText}>Chamado</Text></View>
-          </View>
-        </View>
-
-        {/* ==========================================
-            CENTRAL DE PEDIDOS
-        ========================================== */}
-        <View style={styles.fullWidthSection}>
-          <View style={styles.sectionHeader}>
-            <View>
-              <Text style={styles.sectionTitle}>Central de pedidos</Text>
-              <Text style={styles.sectionSubtitle}>Encaminhe para a cozinha e acione a retirada quando estiver completo.</Text>
-            </View>
-            <ChefHat color={COLORS.primary} size={20} />
-          </View>
-
-          <View style={styles.ordersGrid}>
-            {orders.map((order) => (
-              <View key={order.id} style={styles.orderCard}>
-                <View style={styles.orderHeader}>
-                  <Text style={styles.orderId}>#{order.id}</Text>
-                  <View style={[styles.orderTypeBadge, order.type === 'Delivery' && styles.orderTypeDelivery]}>
-                    <Text style={[styles.orderTypeText, order.type === 'Delivery' && styles.orderTypeTextDelivery]}>
-                      {order.type}
-                    </Text>
+                <View style={styles.kpiCard}>
+                  <View style={styles.kpiHeader}>
+                    <Text style={styles.kpiTitle}>Chamados ativos</Text>
+                    <BellRing color={COLORS.primary} size={18} />
                   </View>
+                  <Text style={styles.kpiValue}>{kpis.callsCount}</Text>
+                  <Text style={styles.kpiSub}>Aguardando atendimento</Text>
                 </View>
-                
-                <Text style={styles.orderTable}>{order.table}</Text>
-                <Text style={styles.orderItems}>{order.items}</Text>
 
-                <View style={styles.orderFooter}>
-                  <View style={styles.orderStatusBadge}>
-                    <Text style={styles.orderStatusText}>{order.status}</Text>
+                <View style={styles.kpiCard}>
+                  <View style={styles.kpiHeader}>
+                    <Text style={styles.kpiTitle}>Delivery hoje</Text>
+                    <Truck color={COLORS.primary} size={18} />
                   </View>
-                  
-                  {order.status === 'Na fila' && (
-                    <TouchableOpacity style={styles.actionButton}>
-                      <Text style={styles.actionButtonText}>Encaminhar à cozinha</Text>
-                    </TouchableOpacity>
-                  )}
-                  {order.status === 'Completo' && order.type === 'Delivery' && (
-                    <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#2E7D32' }]}>
-                      <Text style={styles.actionButtonText}>Chamar motoboy</Text>
-                    </TouchableOpacity>
+                  <Text style={styles.kpiValue}>{kpis.deliveryToday}</Text>
+                  <Text style={styles.kpiSub}>Pedidos registrados</Text>
+                </View>
+              </View>
+
+              {/* Central de Atendimento */}
+              <View style={styles.attentionPanel}>
+                <View style={styles.attentionHeader}>
+                  <View>
+                    <Text style={styles.attentionOverline}>Central de atenção</Text>
+                    <Text style={styles.attentionTitle}>Chamados agora</Text>
+                  </View>
+                  <BellRing color={COLORS.primary} size={20} />
+                </View>
+
+                <View style={styles.attentionList}>
+                  {activeCalls.length === 0 ? (
+                    <Text style={styles.emptyText}>Nenhum chamado pendente no momento.</Text>
+                  ) : (
+                    activeCalls.map((call) => (
+                      <View key={call.id} style={styles.attentionCard}>
+                        <View style={styles.attentionCardHeader}>
+                          <Text style={styles.attentionCardTitle}>{call.title}</Text>
+                          <Text style={styles.attentionCardTime}>{call.time}</Text>
+                        </View>
+                        <Text style={styles.attentionCardAction}>{call.action}</Text>
+                      </View>
+                    ))
                   )}
                 </View>
+
+                <TouchableOpacity style={styles.attentionButton}>
+                  <MapPin color={COLORS.textMain} size={16} />
+                  <Text style={styles.attentionButtonText}>Abrir rota de delivery</Text>
+                </TouchableOpacity>
               </View>
-            ))}
-          </View>
-        </View>
+
+            </View>
+
+            {/* MAPA DE MESAS */}
+            <View style={styles.fullWidthSection}>
+              <View style={styles.sectionHeader}>
+                <View>
+                  <Text style={styles.sectionTitle}>Mapa de mesas</Text>
+                  <Text style={styles.sectionSubtitle}>Toque para abrir a comanda.</Text>
+                </View>
+                <Text style={styles.sectionCount}>{tables.length} mesas</Text>
+              </View>
+
+              <View style={styles.tablesGrid}>
+                {tables.length === 0 ? (
+                  <Text style={styles.emptyText}>Nenhuma mesa cadastrada.</Text>
+                ) : (
+                  tables.map((table) => (
+                    <TouchableOpacity key={table.id} style={styles.tableCard} activeOpacity={0.7}>
+                      <View style={[styles.tableDot, { backgroundColor: getTableColor(table.status) }]} />
+                      <Text style={styles.tableNumber}>Mesa {table.number}</Text>
+                      <Text style={styles.tableStatus}>{table.status}</Text>
+                    </TouchableOpacity>
+                  ))
+                )}
+              </View>
+
+              <View style={styles.legendRow}>
+                <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: COLORS.statusOcupada }]} /><Text style={styles.legendText}>Ocupada</Text></View>
+                <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: COLORS.statusAguardando }]} /><Text style={styles.legendText}>Aguardando</Text></View>
+                <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: COLORS.statusChamado }]} /><Text style={styles.legendText}>Chamado</Text></View>
+              </View>
+            </View>
+
+            {/* CENTRAL DE PEDIDOS */}
+            <View style={styles.fullWidthSection}>
+              <View style={styles.sectionHeader}>
+                <View>
+                  <Text style={styles.sectionTitle}>Central de pedidos</Text>
+                  <Text style={styles.sectionSubtitle}>Encaminhe para a cozinha e acione a retirada quando estiver completo.</Text>
+                </View>
+                <ChefHat color={COLORS.primary} size={20} />
+              </View>
+
+              <View style={styles.ordersGrid}>
+                {orders.length === 0 ? (
+                  <Text style={styles.emptyText}>Nenhum pedido ativo na central.</Text>
+                ) : (
+                  orders.map((order) => (
+                    <View key={order.id} style={styles.orderCard}>
+                      <View style={styles.orderHeader}>
+                        <Text style={styles.orderId}>#{order.id}</Text>
+                        <View style={[styles.orderTypeBadge, order.type === 'Delivery' && styles.orderTypeDelivery]}>
+                          <Text style={[styles.orderTypeText, order.type === 'Delivery' && styles.orderTypeTextDelivery]}>
+                            {order.type}
+                          </Text>
+                        </View>
+                      </View>
+                      
+                      <Text style={styles.orderTable}>{order.table}</Text>
+                      <Text style={styles.orderItems}>{order.items}</Text>
+
+                      <View style={styles.orderFooter}>
+                        <View style={styles.orderStatusBadge}>
+                          <Text style={styles.orderStatusText}>{order.status}</Text>
+                        </View>
+                        
+                        {order.status === 'Na fila' && (
+                          <TouchableOpacity 
+                            style={styles.actionButton}
+                            onPress={() => handleForwardToKitchen(order.id)}
+                          >
+                            <Text style={styles.actionButtonText}>Encaminhar à cozinha</Text>
+                          </TouchableOpacity>
+                        )}
+                        {order.status === 'Completo' && order.type === 'Delivery' && (
+                          <TouchableOpacity 
+                            style={[styles.actionButton, { backgroundColor: '#2E7D32' }]}
+                            onPress={() => handleCallCourier(order.id)}
+                          >
+                            <Text style={styles.actionButtonText}>Chamar motoboy</Text>
+                          </TouchableOpacity>
+                        )}
+                      </View>
+                    </View>
+                  ))
+                )}
+              </View>
+            </View>
+          </>
+        )}
 
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-// ==========================================
-// ESTILOS DINÂMICOS BASEADOS NO TAMANHO DA TELA
-// ==========================================
 const getStyles = (isLargeScreen: boolean) => StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: COLORS.background },
   scrollContent: { padding: isLargeScreen ? 32 : 20, paddingBottom: 60 },
 
-  // --- Header ---
+  loadingContainer: { paddingVertical: 40, alignItems: 'center' },
+  loadingText: { marginTop: 12, fontSize: 14, color: COLORS.textMuted },
+  emptyText: { fontSize: 13, color: COLORS.textMuted, fontStyle: 'italic', paddingVertical: 12 },
+
   header: { marginBottom: 30, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   logoRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
   logoIcon: { backgroundColor: COLORS.primary, padding: 4, borderRadius: 4 },
@@ -258,14 +334,12 @@ const getStyles = (isLargeScreen: boolean) => StyleSheet.create({
   logoutButton: { backgroundColor: COLORS.white, borderWidth: 1, borderColor: COLORS.border, paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8 },
   logoutText: { fontSize: 13, fontWeight: '600', color: COLORS.textMain },
 
-  // --- Layout: Indicadores e Central (Lado a Lado ou Empilhado) ---
   topSectionRow: {
     flexDirection: isLargeScreen ? 'row' : 'column',
     gap: 20,
     marginBottom: 24,
   },
   
-  // Coluna Esquerda: KPIs
   kpiColumn: {
     flex: 1,
     gap: 16,
@@ -282,7 +356,6 @@ const getStyles = (isLargeScreen: boolean) => StyleSheet.create({
   kpiValue: { fontSize: 32, fontWeight: 'bold', color: COLORS.textMain, marginBottom: 4 },
   kpiSub: { fontSize: 12, color: COLORS.textMuted },
 
-  // Coluna Direita: Central Escura
   attentionPanel: {
     flex: 1.2,
     backgroundColor: COLORS.dark,
@@ -302,7 +375,6 @@ const getStyles = (isLargeScreen: boolean) => StyleSheet.create({
   attentionButton: { backgroundColor: COLORS.grayLight, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, paddingVertical: 14, borderRadius: 8 },
   attentionButtonText: { fontSize: 14, fontWeight: 'bold', color: COLORS.textMain },
 
-  // --- Seções Full Width (Mesas e Pedidos) ---
   fullWidthSection: {
     backgroundColor: COLORS.white,
     borderWidth: 1,
@@ -316,7 +388,6 @@ const getStyles = (isLargeScreen: boolean) => StyleSheet.create({
   sectionSubtitle: { fontSize: 13, color: COLORS.textMuted },
   sectionCount: { fontSize: 12, fontWeight: '600', color: COLORS.textMuted },
 
-  // --- Grid de Mesas ---
   tablesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -340,7 +411,6 @@ const getStyles = (isLargeScreen: boolean) => StyleSheet.create({
   legendDot: { width: 8, height: 8, borderRadius: 4 },
   legendText: { fontSize: 12, color: COLORS.textMuted, fontWeight: '500' },
 
-  // --- Grid de Pedidos ---
   ordersGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
